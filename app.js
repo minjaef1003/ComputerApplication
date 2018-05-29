@@ -46,11 +46,12 @@ var mobileATM = require('./routes/mobileATM');
 // 라우터 객체 등록
 app.use('/', router);
 
-// 모바일ATM 임시 계좌발급 함수 -> 라우팅 모듈 호출
+// 모바일ATM 함수 라우팅 모듈 호출
+router.route('/process/showmobileatmaccount').post(mobileATM.showmobileatmaccount);
+router.route('/process/shownomobileatmaccount').post(mobileATM.shownomobileatmaccount);
 router.route('/process/issueaccount').post(mobileATM.issueaccount);
-
-// 모바일ATM 계좌 목록 -> mobileATM.html 에서 jQuery 이용
-router.route('/process/showaccount').post(mobileATM.showaccount);
+router.route('/process/addmobileatmaccount').post(mobileATM.addmobileatmaccount);
+router.route('/process/deletemobileatmaccount').post(mobileATM.deletemobileatmaccount);
 
 // 등록되지 않은 패스에 대해 페이지 오류 응답
 app.all('*', function(req, res) {

@@ -2,20 +2,24 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-        <title>모바일ATM 메인화면</title>
+        <title>모바일ATM 등록화면</title>
         <script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>
         <script>
             $(document).ready(function() {
                 $.ajax({
-                    url:"http://localhost:3000/process/showmobileatmaccount",
+                    url:"http://localhost:3000/process/shownomobileatmaccount",
                     type:"POST",
                     dataType:"JSON",
                     success: function(response){
                         var tempString = "";
+                        if (!response) tempString += "<p>등록할 계좌가 없습니다</p>";
                         for(var i = 0; i < response.length; i++){
+                            tempString += '<form method="post" action="/process/addmobileatmaccount">';
                             tempString += "<p>계좌번호:" + response[i]['count_num'] +
                                                 "   잔액:" + response[i]['count_bal'] +
-                                                "   종류:" + response[i]['count_type'] + "</p>";
+                                                "   종류:" + response[i]['count_type'];
+                            tempString += ' <button type="submit" name="count_num" value="' + response[i]['count_num'] + '">등록</button>';
+                            tempString += '</p></form>';
                         }
                         $("#accountlist").append(tempString);
                     },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
@@ -24,16 +28,7 @@
         </script>
 	</head>
     <body>
-        <h1>모바일ATM</h1>
+        <h1>모바일ATM 등록</h1>
         <div id="accountlist"></div>
-        <a href="/mobileATMregister.html">
-            <button>등록</button>
-        </a>
-        <a href="/mobileATMdelete.html">
-            <button>해제</button>
-        </a>
-        <a href="/issueaccount_temp.html">
-            <button>임시 계좌발급</button>
-        </a>
     </body>
 </html>
