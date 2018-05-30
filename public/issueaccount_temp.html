@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>임시 계좌발급</title>
+	</head>
+    <body>
+        <h1>임시 계좌발급</h1>
+        <br>
+        <form method="post" action="/process/issueaccount">
+            <table>
+                <tr>
+                    <td><label>계좌번호</label></td>
+                    <td><input type="text" name="count_num" ></td>
+                </tr>
+                <tr>
+                    <td><label>계좌금리</label></td>
+                    <td><input type="text" name="count_rate" ></td>
+                </tr>
+                <tr>
+                    <td><label>계좌종류</label></td>
+                    <td><input type="text" name="count_type" ></td>
+                </tr>
+                <tr>
+                    <td><label>계좌잔액</label></td>
+                    <td><input type="text" name="count_bal" ></td>
+                </tr>
+            </table>
+            <input type="submit" value="전송" >
+        </form>
+    </body>
+</html>
