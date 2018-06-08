@@ -1,3 +1,5 @@
+// 모바일ATM Mgr
+
 //===== MySQL 데이터베이스를 사용할 수 있도록 하는 mysql 모듈 불러오기 =====//
 var mysql = require('mysql');
 

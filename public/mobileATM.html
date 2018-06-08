@@ -13,9 +13,12 @@
                     success: function(response){
                         var tempString = "";
                         for(var i = 0; i < response.length; i++){
+                            tempString += '<form method="post" action="/process/sendaccountnumber">';
                             tempString += "<p>계좌번호:" + response[i]['count_num'] +
                                                 "   잔액:" + response[i]['count_bal'] +
-                                                "   종류:" + response[i]['count_type'] + "</p>";
+                                                "   종류:" + response[i]['count_type'];
+                            tempString += ' <button type="submit" name="count_num" value="' + response[i]['count_num'] + '">출금</button>';
+                            tempString += '</p></form>';
                         }
                         $("#accountlist").append(tempString);
                     },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
