@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>자택과 직장에서 수령 결과</title>
+        <script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>
+        <script>
+            $(document).ready(function() {
+                var data = location.href.split('?');
+                var address = data[1].split(':')[0];
+                var date = data[1].split(':')[1];
+                var money = data[1].split(':')[2];
+                var currency = data[1].split(':')[3];
+                var name = data[1].split(':')[4];
+                var phoneNumber = data[1].split(':')[5];
+                
+                $("#date").text(date);
+                $("#address").text(address);
+                $("#name").text(name);
+                $("#money").text(money);
+                $("#currency").text(currency);
+                $("#phoneNumber").text(phoneNumber);
+            });
+        </script>
+	</head>
+    <body>
+        <table>
+            <tr>
+                <td><p>배송희망일: </p></td>
+                <td><text id="date"/></td>
+            </tr>
+            <tr>
+                <td><p>배송주소: </p></td>
+                <td><text id="address"/></td>
+            </tr>
+            <tr>
+                <td><p>수령인: </p></td>
+                <td><text id="name"/></td>
+            </tr>
+            <tr>
+                <td><p>휴대전화번호: </p></td>
+                <td><text id="phoneNumber"/></td>
+            </tr>
+            
+            <tr>
+                <td><p>환전통화: </p></td>
+                <td><text id="currency"/></td>
+            </tr>
+            <tr>
+                <td><p>환전금액: </p></td>
+                <td><text id="money"/></td>
+            </tr>
+        </table>
+         <a href="./exchangeUI.html">
+           <button>환전 홈으로 돌아가기</button>
+        </a>
+    </body>
+</html>

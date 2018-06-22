@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+        <title>환전 Mgr</title>
+        <script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>
+        <script>
+            $(document).ready(function() {
+                $.ajax({
+                    url:"http://localhost:3000/process/showexchangeratecurrency",
+                    type:"POST",
+                    dataType:"JSON",
+                    success: function(response){
+                        var tempString = "";
+                        for(var i = 0; i < response.length; i++){
+                            tempString += "<option value = " + response[i]['currency'] + ">" + response[i]['currency'] + "</option>";
+                        }
+                        $("#currencyList").append(tempString);
+                    },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+                });
+                
+                $("#getExchange").click(function() {
+                    $.ajax({
+                        url:"http://localhost:3000/process/showexchangeratelatest",
+                        type:"POST",
+                        dataType:"JSON",
+                        data: {currency: $("#currencyList").val()},
+                        success: function(response){
+                            var exchangeRate = response[0]["exchangeRate"];
+                            $("#exchangeRate").text(exchangeRate);
+                        },error:function(request,status,error){    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+                    });
+                });
+                
+                $("#moneyButton").click(function() {
+                    var money = $("#money").val();
+                    var exchangeRate = $("#exchangeRate").text();
+                    var resultMoney = money * exchangeRate;
+                    $("#resultMoney").text(resultMoney);
+                });
+                
+                $("#accontCheck").click(function() {
+                    $.ajax({
+                        url:"http://localhost:3000/process/checkAccount",
+                        type:"POST",
+                        dataType:"JSON",
+                        data: {account: $("#account").val()},
+                        success: function(response){
+                            alert("account success");
+                        },error:function(request,status,error){    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+                    });
+                });
+            });
+            
+            function sendCurrAndResultM(url) {
+                var currency = $("#currencyList").val();
+                var money = $("#money").val();
+                location.href = url + "?" + currency + ":" + money;
+            }
+        </script>        
+	</head>
+    <body>
+        <p>통화 리스트</p>
+        <select id="currencyList"> 
+        </select>
+        <button id="getExchange">환률 구하기</button>
+        <table>
+            <tr>
+                <td><p>환률: </p></td>
+                <td><text id="exchangeRate"></text></td>
+            </tr>
+            <tr>
+                <td><p>환전 금액: </p></td>
+                <td><input id="money"/></td>
+                <td><button id="moneyButton">계산</button></td>
+            </tr>
+            <tr>
+                <td><p>원화환산금액: </p></td>
+                <td><text id="resultMoney"/></td>
+            </tr>
+            <tr>
+                <td><p>출금 계좌: </p></td>
+                <td><input id="account"/></td>
+                <td><button id="accontCheck">계좌 확인</button></td>
+            </tr>
+            <tr>
+                <td>
+                    <a onclick="sendCurrAndResultM('./storeInput.html')">
+                        <button id="store">영업점에서 수령</button>
+                    </a>
+                </td>
+                <td>
+                    <a onclick="sendCurrAndResultM('./airportInput.html')">
+                        <button id="airport">인천공항 환전소에서 수령</button>
+                    </a>
+                </td>
+                <td>
+                    <a onclick="sendCurrAndResultM('./deliveryInput.html')">
+                        <button id="delivery">자택과 직장에서 수령</button>
+                    </a>
+                </td>
+            </tr>
+        </table>
+        
+    </body>
+</html>
