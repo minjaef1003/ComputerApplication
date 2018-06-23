@@ -48,18 +48,20 @@ app.use(function(req, res, next) {
 // 라우터 객체 참조
 var router = express.Router();
 
-var mobileATM = require('./routes/mobileATM');
 var exchange = require('./routes/exchange');
+var mobileATMMgr = require('./routes/mobileATMMgr');
+var authNumMgr = require('./routes/authNumMgr');
 
 // 라우터 객체 등록
 app.use('/', router);
 
 // 모바일ATM 함수 라우팅 모듈 호출
-router.route('/process/showmobileatmaccount').post(mobileATM.showmobileatmaccount);
-router.route('/process/shownomobileatmaccount').post(mobileATM.shownomobileatmaccount);
-router.route('/process/issueaccount').post(mobileATM.issueaccount);
-router.route('/process/addmobileatmaccount').post(mobileATM.addmobileatmaccount);
-router.route('/process/deletemobileatmaccount').post(mobileATM.deletemobileatmaccount);
+router.route('/process/showmobileatmaccount').post(mobileATMMgr.showmobileatmaccount);
+router.route('/process/shownomobileatmaccount').post(mobileATMMgr.shownomobileatmaccount);
+router.route('/process/issueaccount').post(mobileATMMgr.issueaccount);
+router.route('/process/addmobileatmaccount').post(mobileATMMgr.addmobileatmaccount);
+router.route('/process/deletemobileatmaccount').post(mobileATMMgr.deletemobileatmaccount);
+router.route('/process/sendaccountnumber').post(authNumMgr.withdrawmobileatmaccount);
 
 // 환전 함수 라우팅 모듈 호출
 router.route('/process/showexchangeratedate').post(exchange.showexchangeratedate);
