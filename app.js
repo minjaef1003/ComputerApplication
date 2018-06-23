@@ -18,10 +18,10 @@ var app = express();
 app.set('port', process.env.PORT || 3000);
 
 // body-parser를 이용해 application/x-www-form-urlencoded 파싱
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // body-parser를 이용해 application/json 파싱
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 // cookie-parser 설정
 app.use(cookieParser());
@@ -36,11 +36,19 @@ app.use(expressSession({
 	saveUninitialized:true
 }));
 
+//CORS
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+
 //===== 라우팅 함수 등록 =====//
 
 // 라우터 객체 참조
 var router = express.Router();
 
+var exchange = require('./routes/exchange');
 var mobileATMMgr = require('./routes/mobileATMMgr');
 var authNumMgr = require('./routes/authNumMgr');
 
@@ -54,6 +62,17 @@ router.route('/process/issueaccount').post(mobileATMMgr.issueaccount);
 router.route('/process/addmobileatmaccount').post(mobileATMMgr.addmobileatmaccount);
 router.route('/process/deletemobileatmaccount').post(mobileATMMgr.deletemobileatmaccount);
 router.route('/process/sendaccountnumber').post(authNumMgr.withdrawmobileatmaccount);
+
+// 환전 함수 라우팅 모듈 호출
+router.route('/process/showexchangeratedate').post(exchange.showexchangeratedate);
+router.route('/process/showexchangeratecurrency').post(exchange.showexchangeratecurrency);
+router.route('/process/showexchangeratelatest').post(exchange.showexchangeratelatest);
+router.route('/process/checkAccount').post(exchange.checkAccount);
+router.route('/process/showStoreList').post(exchange.showStoreList);
+router.route('/process/createstorereservation').post(exchange.createstorereservation);
+router.route('/process/createairportreservation').post(exchange.createairportreservation);
+router.route('/process/createdeliveryreservation').post(exchange.createdeliveryreservation);
+
 
 // 등록되지 않은 패스에 대해 페이지 오류 응답
 app.all('*', function(req, res) {

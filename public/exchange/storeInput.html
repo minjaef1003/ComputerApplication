@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>영업점에서 수령 입력</title>
+        <script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>
+        <script>
+            $(document).ready(function() {
+                var data = location.href.split('?');
+                var currency = data[1].split(':')[0];
+                var money = data[1].split(':')[1];
+                $.ajax({
+                    url:"http://localhost:3000/process/showStoreList",
+                    type:"POST",
+                    dataType:"JSON",
+                    success: function(response){
+                        var tempString = "";
+                        for(var i = 0; i < response.length; i++){
+                            tempString += "<option value = " + response[i]['storeName'] + ">" + response[i]['storeName'] + "</option>";
+                        }
+                        $("#storeList").append(tempString);
+                    },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+                });
+                
+                $("#createReservation").click(function() {
+                    var store = $("#storeList").val();
+                    var date = $("#date").val();
+                    var name = $("#name").val();
+                    
+                    $.ajax({
+                        url:"http://localhost:3000/process/createstorereservation",
+                        type:"POST",
+                        dataType:"JSON",
+                        data: {store:store, date: date, money: money, currency:currency, customer:name},
+                        success: function(response){
+                            console.log(response['msg']);
+                           if(response['msg'] == 'success') {
+                               alert("예약 생성 성공");
+                               
+                               location.href = './storeResult.html' + "?" + store + ":" + date  + ":" + money + ":" + currency + ":" + name;
+                           }
+                        },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+                    });
+                });
+            });
+        </script>
+	</head>
+    <body>
+        <table>
+            <tr>
+                <td><p>수령희망일(yyyy,mm,dd): </p></td>
+                <td><input id="date"/></td>
+                
+            </tr>
+            <tr>
+                <td><p>사용자: </p></td>
+                <td><input id="name"/></td>
+            </tr>
+        </table>
+        <p>수형희망점 리스트</p>
+        <select id="storeList"></select>
+        <br>
+        <br>
+        <button id="createReservation">수령 예약 생성</button>
+    </body>
+</html>
