@@ -52,6 +52,7 @@ app.use(function(req, res, next) {
 // 라우터 객체 참조
 var router = express.Router();
 
+var accountMgr = require('./routes/accountMgr');
 var exchange = require('./routes/exchange');
 var mobileATMMgr = require('./routes/mobileATMMgr');
 var authNumMgr = require('./routes/authNumMgr');
@@ -59,6 +60,15 @@ var card = require('./routes/card');
 
 // 라우터 객체 등록
 app.use('/', router);
+
+// 계좌 함수 라우팅 모듈 호출
+router.route('/process/routeCheckAllAccount').post(accountMgr.routeCheckAllAccount);
+router.route('/process/routeCheckMyAccount').post(accountMgr.routeCheckMyAccount);
+router.route('/process/routeRegistAccount').post(accountMgr.routeRegistAccount);
+router.route('/process/routeDeleteAccount').post(accountMgr.routeDeleteAccount);
+router.route('/process/routeDepositAccount').post(accountMgr.routeDepositAccount);
+router.route('/process/routewithdrawAccount').post(accountMgr.routewithdrawAccount);
+router.route('/process/routeTransferAccount').post(accountMgr.routeTransferAccount);
 
 // 모바일ATM 함수 라우팅 모듈 호출
 router.route('/process/showmobileatmaccount').post(mobileATMMgr.showmobileatmaccount);
