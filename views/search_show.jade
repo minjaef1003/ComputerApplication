@@ -1,0 +1,33 @@
+doctype html
+html
+	head
+		meta(charset='utf-8')
+	body
+		h2= username+'`s Card Data'
+		ul
+			each row in rows	
+				li
+					h3
+						a(href='/process/search_show/'+row.card_id)= row.card_kind
+		artcle
+			if card
+				li
+					a= 'USER: '+card.card_user
+				li
+					a= 'SEX: '+card.card_sex
+				li
+					a= 'STATE: '+card.card_state
+				li
+					a= 'MEMO: '+card.card_memo
+				li
+					a= 'REQUEST TIME: '+card.request_date
+				li
+					if(card.regist_date)
+						a= 'REGIST TIME: '+card.regist_date
+					else
+						a= 'REGIST TIME: -'
+			else
+				a select your cardname
+		
+		h2
+			a(href='/process/card')= 'Back Card Home'
