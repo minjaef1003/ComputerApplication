@@ -17,10 +17,6 @@ var app = express();
 // 기본 속성 설정 (localhost:3000)
 app.set('port', process.env.PORT || 3000);
 
-// views파일안의 jade사용
-app.set('view engine', 'jade');
-app.set('views', './views');
-
 // body-parser를 이용해 application/x-www-form-urlencoded 파싱
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -55,10 +51,11 @@ var router = express.Router();
 var exchange = require('./routes/exchange');
 var mobileATMMgr = require('./routes/mobileATMMgr');
 var authNumMgr = require('./routes/authNumMgr');
-var card = require('./routes/card');
+var card = require('./routes/card')(app);
 
 // 라우터 객체 등록
 app.use('/', router);
+app.use('/process/card', card);
 
 // 모바일ATM 함수 라우팅 모듈 호출
 router.route('/process/showmobileatmaccount').post(mobileATMMgr.showmobileatmaccount);
@@ -78,19 +75,6 @@ router.route('/process/createstorereservation').post(exchange.createstorereserva
 router.route('/process/createairportreservation').post(exchange.createairportreservation);
 router.route('/process/createdeliveryreservation').post(exchange.createdeliveryreservation);
 
-// 카드 관련 라우팅 모듈 호출
-router.route('/process/request_receiver').post(card.request_receiver);
-router.route(['/process/search_show', '/process/search_show/:id']).get(card.search_show);
-router.route('/process/regist_complete').post(card.regist_complete);
-router.route('/process/pass_regist_complete').post(card.pass_regist_complete);
-router.route('/process/pass_change_complete').post(card.pass_change_complete);
-router.route('/process/password_regist').get(card.password_regist);
-router.route('/process/password_change').get(card.password_change);
-router.route('/process/card').get(card.card);
-router.route('/process/card_request').get(card.card_request);
-router.route('/process/card_search').get(card.card_search);
-router.route('/process/card_regist').get(card.card_regist);
-router.route('/process/card_password').get(card.card_password);
 
 // 등록되지 않은 패스에 대해 페이지 오류 응답
 app.all('*', function(req, res) {
