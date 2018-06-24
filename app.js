@@ -90,7 +90,7 @@ router.route('/process/createdeliveryreservation').post(exchange.createdeliveryr
 
 // 카드 관련 라우팅 모듈 호출
 router.route('/process/request_receiver').post(card.request_receiver);
-router.route('/process/search_show').get(card.search_show);
+router.route(['/process/search_show', '/process/search_show/:id']).get(card.search_show);
 router.route('/process/regist_complete').post(card.regist_complete);
 router.route('/process/pass_regist_complete').post(card.pass_regist_complete);
 router.route('/process/pass_change_complete').post(card.pass_change_complete);
