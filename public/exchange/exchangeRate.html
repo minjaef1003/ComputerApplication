@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+        <title>환율조회 입력화면</title>
+        <script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>
+        <script>
+            $(document).ready(function() {
+                $("button").click(function() {
+                    var dateString = "";
+                    dateString += $("#year").val() + "," + $("#month").val() + "," + $("#day").val();
+                    $.ajax({
+                        url:"http://localhost:3000/process/showexchangeratedate",
+                        type:"POST",
+                        dataType:"JSON",
+                        data: {dateString: dateString},
+                        success: function(response){
+                            var tempString = "";
+                            for(var i = 0; i < response.length; i++){
+                                tempString += "<tr>";
+                                tempString += "<td>" + response[i]['currency'] + "</td><td>" + response[i]['exchangeRate'] + "</td>";
+                                tempString += "</tr>";
+                            }
+                            $("#exchangeList").append(tempString);
+                        },error:function(request,status,error){    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+                    });
+                    
+                });
+            });
+        </script>
+	</head>
+    <body>
+        <h1>환율일자 입력</h1>
+        <P>년: <input id="year"/></P>
+        <P>월: <input id="month"/></P>
+        <P>일: <input id="day"/></P>
+        <button>조회</button>
+        <h1>환율조회 결과</h1>
+        <table id="exchangeList">
+            <tr>
+                <td>통화</td>
+                <td>환율</td>
+            </tr>
+        </table>
+    </body>
+</html>
