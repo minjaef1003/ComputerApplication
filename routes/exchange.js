@@ -585,7 +585,7 @@ var createAirportReservation = function(phoneNumber, date, money, currency, cust
             return;
         }
         
-        var exec = conn.query("insert into listAirportReservation(phoneNumber, date, money, currency, customer, account, resultMoney) values('" + phoneNumber + "', '" + date + "', " + money + ", '" + currency + "', '" + customer + "', '" + account + "', " + resultMoney + "')", function(err, rows) {
+        var exec = conn.query("insert into listAirportReservation(phoneNumber, date, money, currency, customer, account, resultMoney) values('" + phoneNumber + "', '" + date + "', " + money + ", '" + currency + "', '" + customer + "', '" + account + "', " + resultMoney + ")", function(err, rows) {
             conn.release();
             console.log('실행 대상 SQL : ' + exec.sql);
             
@@ -702,7 +702,7 @@ var createDeliveryReservaion = function(address, date, money, currency, receiver
             return;
         }
         
-        var exec = conn.query("insert into listDeliveryReservation(address, date, money, currency, receiver, phoneNumber) values('" + address + "', '" + date + "', " + money + ", '" + currency + "', '" + receiver + "', '" + phoneNumber + "', '" + account + "', " + resultMoney + "')", function(err, rows) {
+        var exec = conn.query("insert into listDeliveryReservation(address, date, money, currency, receiver, phoneNumber, account, resultMoney) values('" + address + "', '" + date + "', " + money + ", '" + currency + "', '" + receiver + "', '" + phoneNumber + "', '" + account + "', " + resultMoney + ")", function(err, rows) {
             conn.release();
             console.log('실행 대상 SQL : ' + exec.sql);
             
@@ -764,7 +764,7 @@ var createdeliveryreservation = function(req, res) {
                         }   
                     });
                     //createDelivery
-                    createDeliveryReservaion(address, date, money, currency, receiver, phoneNumber, function(err, callback) {
+                    createDeliveryReservaion(address, date, money, currency, receiver, phoneNumber, account, resultMoney, function(err, callback) {
                         if (err) {
                             console.error('배달 예약 생성 불러오는 중 에러 발생 : ' + err.stack);
 

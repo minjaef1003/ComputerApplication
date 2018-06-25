@@ -43,7 +43,8 @@
                                     }   
                                 },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
                             });
-                        }.error:function(request,status,error){    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+
+                        },error:function(request,status,error){    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
                     });
                 });
             });
@@ -52,7 +53,7 @@
     <body>
         <table>
             <tr>
-                <td><p>수령희망일(yyyy,mm,dd): </p></td>
+                <td><p>수령희망일: </p></td>
                 <td><input id="date"/></td>
             </tr>
             <tr>
