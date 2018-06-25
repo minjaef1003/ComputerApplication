@@ -318,78 +318,6 @@ var showexchangeratelatest = function(req, res) {
 	}
 };
 
-// 계좌 소유주 확인 함수 - 미정.
-var checkAccountUser = function(callback) {
-    callback(null, true);
-}
-// 계좌 잔액확인 함수 - 미정
-var checkAccountMoney = function(callback) {
-    callback(null, true);    
-}
-// 계좌 이체 함수 -- 미정
-var transferAccount = function(callback) {
-    callback(null, true);    
-}
-
-// checkAccountUser, checkAccountMoney, transferAccount 라우팅 함수. - 미정
-var checkAccount = function(req, res) {
-    console.log('/process/checkAccount called');
-    
-    // pool 객체가 초기화된 경우, showExchangeRateDate 함수 호출하여 환율 목록 전송
-    if (pool) {
-        checkAccountUser(function(err, callback) {
-            if (err) {
-                console.error('계좌 소유주 확인 불러오는 중 에러 발생 : ' + err.stack);
-                return;
-            }
-            
-            if (callback) {
-                console.log('계좌 소유주 확인 불러오기 성공');
-               
-                checkAccountMoney(function(err, callback) {
-                    if (err) {
-                        console.error('계좌 잔액 확인 불러오는 중 에러 발생 : ' + err.stack);
-                        return;
-                    }
-                    
-                    if(callback) {
-                        console.log('계좌 잔액 확인 불러오기 성공');
-                       
-                        transferAccount(function(err, callback) {
-                            if (err) {
-                                console.error('계좌 이체 불러오는 중 에러 발생 : ' + err.stack);
-                                return;
-                            }
-
-                            if(callback) {
-                                console.log('계좌 이체 불러오기 성공');
-                                res.send(true); // 미정
-                                res.end();
-                            }
-                            else {
-                                console.log('계좌 이체 불러오기 실패');
-                                res.send(200, false);
-                                res.end();
-                            }
-                        });
-                    }
-                    else {
-                        console.log('계좌 잔액 확인 불러오기 실패');
-                        res.send(200, false);
-                        res.end();
-                    }
-                });
-            } else {
-                console.log('계좌 소유주 확인 불러오기 실패');
-                res.send(200, false);
-                res.end();
-            }
-        });
-    } else {  // 데이터베이스 객체가 초기화되지 않은 경우 실패 응답 전송
-		console.log('데이터베이스 연결 실패');
-	}
-}
-
 // 수령희망점 조회 함수
 var selectStoreList = function(callback) {
      pool.getConnection(function(err, conn) {
@@ -451,7 +379,7 @@ var showStoreList = function(req, res) {
 };
 
 // 영업점에서 수령 예약 생성 함수
-var createStoreReservation = function(store, date, money, currency, customer, callback) {
+var createStoreReservation = function(store, date, money, currency, customer, account, resultMoney, callback) {
      pool.getConnection(function(err, conn) {
         if(err) {
             if(conn) {
@@ -461,7 +389,7 @@ var createStoreReservation = function(store, date, money, currency, customer, ca
             return;
         }
         
-        var exec = conn.query("insert into listStoreReservation(store, date, money, currency, customer) values('" + store + "', str_to_date('" + date + "', '%Y,%m,%d'), " + money + ", '" + currency + "', '" + customer + "')", function(err, rows) {
+        var exec = conn.query("insert into listStoreReservation(store, date, money, currency, customer, account, resultMoney) values('" + store + "', str_to_date('" + date + "', '%Y,%m,%d'), " + money + ", '" + currency + "', '" + customer + "', '" + account + "', " + resultMoney + ")", function(err, rows) {
             conn.release();
             console.log('실행 대상 SQL : ' + exec.sql);
             
@@ -486,6 +414,42 @@ var createStoreReservation = function(store, date, money, currency, customer, ca
     });
 }
 
+var seachAccount = function(count_num, callback) {
+   // 커넥션 풀에서 연결 객체를 가져옴
+   pool.getConnection(function(err, conn) {
+        if (err) {
+           if (conn) {
+                conn.release();  // 반드시 해제해야 함
+            }
+            callback(err, null);
+            return;
+        }   
+          
+        var columns = ['count_date', 'count_rate', 'count_num', 'count_bal', 'count_type', 'count_owner', 'count_ownerID', 'isMobileATM'];
+        var tablename = 'countinformation';
+ 
+        // SQL 문을 실행합니다.
+        var exec = conn.query("select ?? from ?? where count_num = ?", [columns, tablename, count_num], function(err, rows) {
+            conn.release();  // 반드시 해제해야 함
+            console.log('실행 대상 SQL : ' + exec.sql);
+            
+            if (rows.length > 0) {
+              callback(null, rows);
+            } else {
+              callback(null, null);
+            }
+        });
+
+        conn.on('error', function(err) {      
+            console.log('데이터베이스 연결 시 에러 발생함.');
+            console.dir(err);
+            
+            callback(err, null);
+      });
+    });
+   
+}
+
 // createStoreReservation 라우팅 함수
 var createstorereservation = function(req, res) {
     console.log('/process/createstorereservation called');
@@ -495,32 +459,57 @@ var createstorereservation = function(req, res) {
     var money = req.body.money || req.query.money;
     var currency = req.body.currency || req.query.currency;
     var customer = req.body.customer || req.query.customer;
+    var account = req.body.account || req.query.account;
+    var resultMoney = req.body.resultMoney || req.query.resultMoney;
+    
+    var id = req.user[0][id];
     
     // pool 객체가 초기화된 경우, createStoreReservation 함수 호출하여 영업점 수령 예약 생성
     if (pool) {
-        createStoreReservation(store, date, money, currency, customer, function(err, callback) {
-            if (err) {
-                console.error('영업점 수령 예약 생성 불러오는 중 에러 발생 : ' + err.stack);
-                  
-                res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
-				res.write('<h2>영업점 수령 예약 생성 중 에러 발생</h2>');
-                res.write('<p>' + err.stack + '</p>');
-				res.end();
-                
-                return;
-            }
-            
-            if (callback) {
-                console.log('영업점 수령 예약 생성 불러오기 성공');
-                
-				res.send(callback);
-				res.end();
+        console.log('계좌 확인');
+        seachAccount(account, function(err, callback) {
+            if(callback) {
+                if(id == callback[0]["id"]) {
+                    //createStore
+                    createStoreReservation(store, date, money, currency, customer, account, resultMoney, function(err, callback) {
+                    if (err) {
+                        console.error('영업점 수령 예약 생성 불러오는 중 에러 발생 : ' + err.stack);
 
+                        res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
+                        res.write('<h2>영업점 수령 예약 생성 중 에러 발생</h2>');
+                        res.write('<p>' + err.stack + '</p>');
+                        res.end();
+
+                        return;
+                    }
+
+                    if (callback) {
+                        console.log('영업점 수령 예약 생성 불러오기 성공');
+
+                        res.send(callback);
+                        res.end();
+
+                    } else {
+                        console.log('영업점 수령 예약 생성 불러오기 실패');
+                        res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
+                        res.write('<h2>영업점 수령 예약 생성 실패</h2>');
+                        res.end();            }
+                    });
+                    
+                    
+                }
+                else {
+                    console.log("계좌주 미일치");
+                    var msg = {msg : 'account fail'};
+                    res.send(msg);
+                    res.end();
+                }
             } else {
-                console.log('영업점 수령 예약 생성 불러오기 실패');
-                res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
-				res.write('<h2>영업점 수령 예약 생성 실패</h2>');
-				res.end();            }
+                console.log("계좌 없음");
+                 var msg = {msg : 'account nothing'};
+                res.send(msg);
+                res.end();
+            }
         });
     } else {  // 데이터베이스 객체가 초기화되지 않은 경우 실패 응답 전송
 		console.log('데이터베이스 연결 실패');
