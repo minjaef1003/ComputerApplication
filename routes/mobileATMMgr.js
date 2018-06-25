@@ -260,7 +260,7 @@ var addmobileatmaccount = function(req, res) {
 
 				res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
 				res.write('<h2>모바일ATM 계좌 추가 성공</h2>');
-                res.write("<br><br><a href='/mobileATM.html'>모바일ATM 메인화면 돌아가기</a>");
+                res.write("<br><br><a href='/mobileATM/mobileATM.html'>모바일ATM 메인화면 돌아가기</a>");
 				res.end();
 			} else {
 				res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
@@ -303,7 +303,7 @@ var deletemobileatmaccount = function(req, res) {
 
 				res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
 				res.write('<h2>모바일ATM 계좌 해제 성공</h2>');
-                res.write("<br><br><a href='/mobileATM.html'>모바일ATM 메인화면 돌아가기</a>");
+                res.write("<br><br><a href='/mobileATM/mobileATM.html'>모바일ATM 메인화면 돌아가기</a>");
 				res.end();
 			} else {
 				res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
