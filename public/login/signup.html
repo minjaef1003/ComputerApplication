@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>회원가입</title>
+        <script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>
+        <script>
+            $(document).ready(function() {
+                $("#signup").click(function() {
+                    var Id = $("#id").val();
+                    var password = $("#password").val();
+                    var Name = $("#Name").val();
+                    var Address = $("#Address").val();
+                    var Eaddress = $("#Eaddress").val();
+                    var Birth = $("#Birth").val();
+                    var phone = $("#phone").val();
+                    
+                    $.ajax({
+                        url:"http://localhost:3000/process/signup",
+                        type:"POST",
+                        dataType:"JSON",
+                        data: {id: id, password: password, Name: Name, Address: Address, Eaddress: Eaddress, Birth: Birth, phone: phone},
+                        success: function(response){
+                            console.log(response['msg']);
+                           if(response['msg'] == 'success') {
+                               alert("회원가입 완료");
+                               
+                                location.href = './login.ejs' + "?" + id + ":" + password  + ":" + Name + ":" + Address + ":" + Eaddress  + ":" + Birth  + ":" + phone;
+                               
+                           }
+                        },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+                    });
+                });
+            });
+        </script>
+	</head>
+    <body>
+        <table>
+            <tr>
+                <td><p>아이디: </p></td>
+                <td><input id="id"/></td>
+            </tr>
+            <tr>
+                <td><p>비밀번호: </p></td>
+                <td><input id="password"/></td>
+            </tr>
+             <tr>
+                <td><p>이름: </p></td>
+                <td><input id="Name"/></td>
+            </tr>
+             <tr>
+                <td><p>주소: </p></td>
+                <td><input id="Address"/></td>
+            </tr>
+             <tr>
+                <td><p>E-mail: </p></td>
+                <td><input id="Eaddress"/></td>
+            </tr>
+             <tr>
+                <td><p>생년월일: </p></td>
+                <td><input id="Birth"/></td>
+            </tr>
+             <tr>
+                <td><p>휴대폰번호: </p></td>
+                <td><input id="phone"/></td>
+            </tr>
+        </table>
+        <button id="signup">회원가입</button>
+    </body>
+</html>

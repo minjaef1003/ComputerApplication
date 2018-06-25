@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>로그인 창</title>
+<style>
+body{padding-top:30px;}
+label,input{display:block;}
+</style>
+
+
+
+</head>
+<body>
+
+<p>로그인</p>
+
+<form action="/login" method="post" >
+     <div>
+         <label>ID</label>
+         <input type="text" class="form-control" name="id">
+     </div>
+     <div>
+         <label>PW</label>
+         <input type="password" class="form-control" name="password">
+     </div>
+
+     <button type="submit">로그인</button>
+ </form>
+    <div>
+        <a href="./login/signup.html">
+         <button>회원가입</button>
+        </a>        
+    </div>
+</body>
+</html>
