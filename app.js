@@ -102,7 +102,7 @@ router.route('/process/sendaccountnumber').post(authNumMgr.withdrawmobileatmacco
 router.route('/process/showexchangeratedate').post(exchange.showexchangeratedate);
 router.route('/process/showexchangeratecurrency').post(exchange.showexchangeratecurrency);
 router.route('/process/showexchangeratelatest').post(exchange.showexchangeratelatest);
-router.route('/process/checkAccount').post(exchange.checkAccount);
+router.route('/process/searchAccount').post(exchange.searchAccount);
 router.route('/process/showStoreList').post(exchange.showStoreList);
 router.route('/process/createstorereservation').post(exchange.createstorereservation);
 router.route('/process/createairportreservation').post(exchange.createairportreservation);
