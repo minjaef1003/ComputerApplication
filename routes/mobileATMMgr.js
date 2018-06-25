@@ -8,8 +8,8 @@ var pool      =    mysql.createPool({
     connectionLimit : 10, 
     host     : 'localhost',
     user     : 'root',
-    password : '1111',
-    database : 'mobileatm',
+    password : 'cjswo465',
+    database : 'computerapplication',
     debug    :  false
 });
 
@@ -85,51 +85,6 @@ var showNoMobileATMAccount = function(callback) {
             
             callback(err, null);
       });
-    });
-	
-}
-
-//임시 계좌 발급하는 함수
-var addAccount = function(count_num, count_rate, count_type, count_bal, callback) {
-    
-	// 커넥션 풀에서 연결 객체를 가져옴
-	pool.getConnection(function(err, conn) {
-        if (err) {
-        	if (conn) {
-                conn.release();  // 반드시 해제해야 함
-            }
-            
-            callback(err, null);
-            return;
-        }   
-
-    	// 데이터를 객체로 만듦
-    	var data = {count_num:count_num, count_rate:count_rate, count_type:count_type, count_bal:count_bal};
-    	
-        // SQL 문을 실행함
-        var exec = conn.query('insert into countinformation set ?', data, function(err, result) {
-        	conn.release();  // 반드시 해제해야 함
-        	console.log('실행 대상 SQL : ' + exec.sql);
-        	
-        	if (err) {
-        		console.log('SQL 실행 시 에러 발생함.');
-        		console.dir(err);
-        		
-        		callback(err, null);
-        		
-        		return;
-        	}
-        	
-        	callback(null, result);
-        	
-        });
-        
-        conn.on('error', function(err) {      
-              console.log('데이터베이스 연결 시 에러 발생함.');
-              console.dir(err);
-              
-              callback(err, null);
-        });
     });
 	
 }
@@ -278,52 +233,6 @@ var shownomobileatmaccount = function(req, res) {
 	}
 }
 
-// 계좌 등록 라우팅 함수
-var issueaccount = function(req, res) {
-	console.log('/process/issueaccount 호출됨.');
-
-    var paramNum = req.body.count_num || req.query.count_num;
-    var paramRate = req.body.count_rate || req.query.count_rate;
-    var paramType = req.body.count_type || req.query.count_type;
-    var paramBal = req.body.count_bal || req.query.count_bal;
-    
-    // pool 객체가 초기화된 경우, addAccount 함수 호출하여 계좌 추가
-	if (pool) {
-		addAccount(paramNum, paramRate, paramType, paramBal, function(err, addedAccount) {
-			// 동일한 계좌번호로 추가하려는 경우 에러 발생 - 클라이언트로 에러 전송
-			if (err) {
-                console.error('계좌 추가 중 에러 발생 : ' + err.stack);
-                
-                res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
-				res.write('<h2>계좌 추가 중 에러 발생</h2>');
-                res.write('<p>' + err.stack + '</p>');
-				res.end();
-                
-                return;
-            }
-			
-            // 결과 객체 있으면 성공 응답 전송
-			if (addedAccount) {
-				console.dir(addedAccount);
-
-				res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
-				res.write('<h2>계좌 추가 성공</h2>');
-                res.write("<br><br><a href='/mobileATM.html'>모바일ATM 메인화면 돌아가기</a>");
-				res.end();
-			} else {
-				res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
-				res.write('<h2>계좌 추가 실패</h2>');
-				res.end();
-			}
-		});
-	} else {  // 데이터베이스 객체가 초기화되지 않은 경우 실패 응답 전송
-		res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
-		res.write('<h2>데이터베이스 연결 실패</h2>');
-		res.end();
-	}
-	
-};
-
 // 모바일ATM 계좌 등록 라우팅 함수
 var addmobileatmaccount = function(req, res) {
 	console.log('/process/addmobileatmaccount 호출됨.');
@@ -412,6 +321,5 @@ var deletemobileatmaccount = function(req, res) {
 
 module.exports.showmobileatmaccount = showmobileatmaccount;
 module.exports.shownomobileatmaccount = shownomobileatmaccount;
-module.exports.issueaccount = issueaccount;
 module.exports.addmobileatmaccount = addmobileatmaccount;
 module.exports.deletemobileatmaccount = deletemobileatmaccount;

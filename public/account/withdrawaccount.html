@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>출금</title>
+        <script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>
+        <script>
+            $(document).ready(function() {
+                $("#Button").click(function() {
+                    var count_num = $("#count_num").val();
+                    var withdrawMoney = $("#withdrawMoney").val();
+                    $.ajax({
+                        url:"http://localhost:3000/process/routewithdrawAccount",
+                        type:"POST",
+                        dataType:"JSON",
+                        data: {count_num:count_num, withdrawMoney:withdrawMoney},
+                        success: function(response){
+                            if(response['msg'] == 'success')
+                                alert("출금 성공");
+                        },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+                    });
+                });
+            });
+        </script>
+	</head>
+    <body>
+        <h1>출금</h1>
+            <table>
+                <tr>
+                    <td><label>계좌번호</label></td>
+                    <td><input type="text" id="count_num" ></td>
+                </tr>
+                <tr>
+                    <td><label>출금액</label></td>
+                    <td><input type="text" id="withdrawMoney" ></td>
+                </tr>
+            </table>
+        <button id="Button">출금</button>
+    </body>
+</html>

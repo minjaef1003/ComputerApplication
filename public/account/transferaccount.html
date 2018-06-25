@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>이체</title>
+        <script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>
+        <script>
+            $(document).ready(function() {
+                $("#Button").click(function() {
+                    var transfer_count_num = $("#transfer_count_num").val();
+                    var receiver_count_num = $("#receiver_count_num").val();
+                    var transferMoney = $("#transferMoney").val();
+                    $.ajax({
+                        url:"http://localhost:3000/process/routeTransferAccount",
+                        type:"POST",
+                        dataType:"JSON",
+                        data: {transfer_count_num:transfer_count_num, receiver_count_num:receiver_count_num, transferMoney:transferMoney},
+                        success: function(response){
+                            if(response['msg'] == 'success')
+                                alert("이체 성공");
+                        },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+                    });
+                });
+            });
+        </script>
+	</head>
+    <body>
+        <h1>이체</h1>
+            <table>
+                <tr>
+                    <td><label>내 계좌번호</label></td>
+                    <td><input type="text" id="transfer_count_num" ></td>
+                </tr>
+                <tr>
+                    <td><label>상대 계좌번호</label></td>
+                    <td><input type="text" id="receiver_count_num" ></td>
+                </tr>
+                <tr>
+                    <td><label>출금액</label></td>
+                    <td><input type="text" id="transferMoney" ></td>
+                </tr>
+            </table>
+        <button id="Button">이체</button>
+    </body>
+</html>

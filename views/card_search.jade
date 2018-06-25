@@ -1,0 +1,17 @@
+doctype html
+html
+	head
+		meta(charset='utf-8')
+	body
+		h1 Card Search
+		p Please input your information
+		form(action='/process/card/search_show' method='get')
+			p
+				input(type='text' name='search_name' placeholder='input name')
+			p
+				input(type='text' name='search_birthday' placeholder='input birthday ex) 0000/00/00')
+			p
+				input(type='submit' value='Search')
+		form(action='/process/card/card' method='get')
+			p
+				input(type='submit' value='Back')
