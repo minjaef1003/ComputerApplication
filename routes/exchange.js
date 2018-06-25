@@ -13,7 +13,6 @@ var pool      =    mysql.createPool({
 
 //환율조회-날짜 함수
 //일자 입력 후 조회 버튼 선택 시 디비에 조회. 결과는 테이블로 
-//주어지는 date 는 "0000,00,00". str_to_date(dateString,'%Y,%m,%d')
 var showExchangeRateDate = function(dateString, callback) {
     // 커넥션 풀에서 연결 객체를 가져옴
 	pool.getConnection(function(err, conn) {
@@ -30,7 +29,7 @@ var showExchangeRateDate = function(dateString, callback) {
         var date = dateString.toString();
         
         // SQL 문을 실행합니다.
-        var exec = conn.query("select ?? from ?? where date = str_to_date('" + date + "', '%Y,%m,%d');", [columns, tablename], function(err, rows) {
+        var exec = conn.query("select ?? from ?? where date = '" + date + "';", [columns, tablename], function(err, rows) {
             conn.release();  // 반드시 해제해야 함
             console.log('실행 대상 SQL : ' + exec.sql);
             
@@ -389,7 +388,7 @@ var createStoreReservation = function(store, date, money, currency, customer, ac
             return;
         }
         
-        var exec = conn.query("insert into listStoreReservation(store, date, money, currency, customer, account, resultMoney) values('" + store + "', str_to_date('" + date + "', '%Y,%m,%d'), " + money + ", '" + currency + "', '" + customer + "', '" + account + "', " + resultMoney + ")", function(err, rows) {
+        var exec = conn.query("insert into listStoreReservation(store, date, money, currency, customer, account, resultMoney) values('" + store + "', '" + date + "', " + money + ", '" + currency + "', '" + customer + "', '" + account + "', " + resultMoney + ")", function(err, rows) {
             conn.release();
             console.log('실행 대상 SQL : ' + exec.sql);
             
@@ -450,6 +449,50 @@ var seachAccount = function(count_num, callback) {
    
 }
 
+// 출금
+var withdrawAccount = function(count_num, withdrawMoney, callback) {
+    
+	// 커넥션 풀에서 연결 객체를 가져옴
+	pool.getConnection(function(err, conn) {
+        if (err) {
+        	if (conn) {
+                conn.release();  // 반드시 해제해야 함
+            }
+            
+            callback(err, null);
+            return;
+        }   
+
+        var tablename = 'countinformation';
+    	
+        // SQL 문을 실행함
+        var exec = conn.query("update ?? set count_bal=count_bal - " + withdrawMoney + " where count_num=?", [tablename, count_num], function(err, result) {
+        	conn.release();  // 반드시 해제해야 함
+        	console.log('실행 대상 SQL : ' + exec.sql);
+        	
+        	if (err) {
+        		console.log('SQL 실행 시 에러 발생함.');
+        		console.dir(err);
+        		
+        		callback(err, null);
+        		
+        		return;
+        	}
+        	
+        	callback(null, result);
+        	
+        });
+        
+        conn.on('error', function(err) {      
+              console.log('데이터베이스 연결 시 에러 발생함.');
+              console.dir(err);
+              
+              callback(err, null);
+        });
+    });
+	
+}
+
 // createStoreReservation 라우팅 함수
 var createstorereservation = function(req, res) {
     console.log('/process/createstorereservation called');
@@ -462,14 +505,29 @@ var createstorereservation = function(req, res) {
     var account = req.body.account || req.query.account;
     var resultMoney = req.body.resultMoney || req.query.resultMoney;
     
-    var id = req.user[0][id];
+    var id = req.user[0]["id"];
     
     // pool 객체가 초기화된 경우, createStoreReservation 함수 호출하여 영업점 수령 예약 생성
     if (pool) {
         console.log('계좌 확인');
         seachAccount(account, function(err, callback) {
             if(callback) {
-                if(id == callback[0]["id"]) {
+                if(id == callback[0]["count_ownerID"]) {
+                    withdrawAccount(account, resultMoney, function(err, callback) {
+                        if (err) {
+                            console.error('출금 중 에러 발생 : ' + err.stack);
+                            return;
+                        }
+
+                        if (account) {
+                            console.log('출금 성공');
+//                            res.send({msg:"success"});
+                        } else {
+                            console.log('출금 실패');
+                            res.send(200, false);
+                            res.end();
+                        }   
+                    });
                     //createStore
                     createStoreReservation(store, date, money, currency, customer, account, resultMoney, function(err, callback) {
                     if (err) {
@@ -527,7 +585,7 @@ var createAirportReservation = function(phoneNumber, date, money, currency, cust
             return;
         }
         
-        var exec = conn.query("insert into listAirportReservation(phoneNumber, date, money, currency, customer) values('" + phoneNumber + "', str_to_date('" + date + "', '%Y,%m,%d'), " + money + ", '" + currency + "', '" + customer + "')", function(err, rows) {
+        var exec = conn.query("insert into listAirportReservation(phoneNumber, date, money, currency, customer) values('" + phoneNumber + "', '" + date + "', " + money + ", '" + currency + "', '" + customer + "')", function(err, rows) {
             conn.release();
             console.log('실행 대상 SQL : ' + exec.sql);
             
@@ -604,7 +662,7 @@ var createDeliveryReservaion = function(address, date, money, currency, receiver
             return;
         }
         
-        var exec = conn.query("insert into listDeliveryReservation(address, date, money, currency, receiver, phoneNumber) values('" + address + "', str_to_date('" + date + "', '%Y,%m,%d'), " + money + ", '" + currency + "', '" + receiver + "', '" + phoneNumber + "')", function(err, rows) {
+        var exec = conn.query("insert into listDeliveryReservation(address, date, money, currency, receiver, phoneNumber) values('" + address + "', '" + date + "', " + money + ", '" + currency + "', '" + receiver + "', '" + phoneNumber + "')", function(err, rows) {
             conn.release();
             console.log('실행 대상 SQL : ' + exec.sql);
             
@@ -676,7 +734,6 @@ module.exports.showexchangeratedate = showexchangeratedate;
 module.exports.showexchangeratecurrency = showexchangeratecurrency;
 module.exports.showexchangeratelatest = showexchangeratelatest;
 //exchangeMgr.html account
-module.exports.checkAccount = checkAccount;
 //storeInput.html, storeList
 module.exports.showStoreList = showStoreList;
 //storeInput.html, storeReservation
