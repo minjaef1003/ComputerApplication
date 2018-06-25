@@ -36,27 +36,29 @@
                         success: function(response){
                             var exchangeRate = response[0]["exchangeRate"];
                             resultMoney = money * exchangeRate;
+                            console.log(resultMoney);
+                            $.ajax({
+                                url:"http://localhost:3000/process/createstorereservation",
+                                type:"POST",
+                                dataType:"JSON",
+                                data: {store:store, date: date, money: money, currency:currency, customer:name, account: account, resultMoney: resultMoney},
+                                success: function(response){
+                                    console.log(response['msg']);
+                                    if(response['msg'] == 'success') {
+                                       alert("예약 생성 성공");
+
+                                       location.href = './storeResult.html' + "?" + store + ":" + date  + ":" + money + ":" + currency + ":" + name + ":" + account + ":" + resultMoney;
+                                    } else if(response['msg'] == 'account fail') {
+                                             alert("계좌 미일치");
+                                    } else if(response['msg'] == 'account nothing') {
+                                             alert("계좌가 존재하지 않습니다.");
+                                    }
+                                },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+                            });
+
                         },error:function(request,status,error){    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
                     });
                     
-                    $.ajax({
-                        url:"http://localhost:3000/process/createstorereservation",
-                        type:"POST",
-                        dataType:"JSON",
-                        data: {store:store, date: date, money: money, currency:currency, customer:name, account: account, resultMoney: resultMoney},
-                        success: function(response){
-                            console.log(response['msg']);
-                            if(response['msg'] == 'success') {
-                               alert("예약 생성 성공");
-                               
-                               location.href = './storeResult.html' + "?" + store + ":" + date  + ":" + money + ":" + currency + ":" + name + ":" + account;
-                            } else if(response['msg'] == 'account fail') {
-                                     alert("계좌 미일치");
-                            } else if(response['msg'] == 'account nothing') {
-                                     alert("계좌가 존재하지 않습니다.");
-                            }
-                        },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
-                    });
                 });
             });
         </script>
@@ -64,7 +66,7 @@
     <body>
         <table>
             <tr>
-                <td><p>수령희망일(yyyy,mm,dd): </p></td>
+                <td><p>수령희망일: </p></td>
                 <td><input id="date"/></td>
                 
             </tr>
