@@ -52,10 +52,11 @@
                 });
             });
             
-            function sendCurrAndResultM(url) {
+            function sendCurrAndMoney(url) {
                 var currency = $("#currencyList").val();
                 var money = $("#money").val();
-                location.href = url + "?" + currency + ":" + money;
+                var resultMoney = $("#resultMoney").val();
+                location.href = url + "?" + currency + ":" + money + ":" + resultMoney;
             }
         </script>        
 	</head>
@@ -79,23 +80,18 @@
                 <td><text id="resultMoney"/></td>
             </tr>
             <tr>
-                <td><p>출금 계좌: </p></td>
-                <td><input id="account"/></td>
-                <td><button id="accontCheck">계좌 확인</button></td>
-            </tr>
-            <tr>
                 <td>
-                    <a onclick="sendCurrAndResultM('./storeInput.html')">
+                    <a onclick="sendCurrAndMoney('./storeInput.html')">
                         <button id="store">영업점에서 수령</button>
                     </a>
                 </td>
                 <td>
-                    <a onclick="sendCurrAndResultM('./airportInput.html')">
+                    <a onclick="sendCurrAndMoney('./airportInput.html')">
                         <button id="airport">인천공항 환전소에서 수령</button>
                     </a>
                 </td>
                 <td>
-                    <a onclick="sendCurrAndResultM('./deliveryInput.html')">
+                    <a onclick="sendCurrAndMoney('./deliveryInput.html')">
                         <button id="delivery">자택과 직장에서 수령</button>
                     </a>
                 </td>

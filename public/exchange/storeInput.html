@@ -26,19 +26,35 @@
                     var store = $("#storeList").val();
                     var date = $("#date").val();
                     var name = $("#name").val();
+                    var account = $("#account").val();
+                    var resultMoney;
+                    $.ajax({
+                        url:"http://localhost:3000/process/showexchangeratelatest",
+                        type:"POST",
+                        dataType:"JSON",
+                        data: {currency: currency},
+                        success: function(response){
+                            var exchangeRate = response[0]["exchangeRate"];
+                            resultMoney = money * exchangeRate;
+                        },error:function(request,status,error){    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+                    });
                     
                     $.ajax({
                         url:"http://localhost:3000/process/createstorereservation",
                         type:"POST",
                         dataType:"JSON",
-                        data: {store:store, date: date, money: money, currency:currency, customer:name},
+                        data: {store:store, date: date, money: money, currency:currency, customer:name, account: account, resultMoney: resultMoney},
                         success: function(response){
                             console.log(response['msg']);
-                           if(response['msg'] == 'success') {
+                            if(response['msg'] == 'success') {
                                alert("예약 생성 성공");
                                
-                               location.href = './storeResult.html' + "?" + store + ":" + date  + ":" + money + ":" + currency + ":" + name;
-                           }
+                               location.href = './storeResult.html' + "?" + store + ":" + date  + ":" + money + ":" + currency + ":" + name + ":" + account;
+                            } else if(response['msg'] == 'account fail') {
+                                     alert("계좌 미일치");
+                            } else if(response['msg'] == 'account nothing') {
+                                     alert("계좌가 존재하지 않습니다.");
+                            }
                         },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
                     });
                 });
@@ -59,6 +75,12 @@
         </table>
         <p>수형희망점 리스트</p>
         <select id="storeList"></select>
+        <table>
+            <tr>
+                <td><p>출금 계좌: </p></td>
+                <td><input id="account"/></td>
+            </tr>
+        </table>
         <br>
         <br>
         <button id="createReservation">수령 예약 생성</button>
