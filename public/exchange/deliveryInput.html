@@ -31,17 +31,18 @@
                                 url:"http://localhost:3000/process/createdeliveryreservation",
                                 type:"POST",
                                 dataType:"JSON",
-                                data: {address:address, date: date, money: money, currency:currency, receiver:name, phoneNumber: phoneNumber},
+                                data: {address:address, date: date, money: money, currency:currency, receiver:name, phoneNumber: phoneNumber, account:account, resultMoney: resultMoney},
                                 success: function(response){
                                     console.log(response['msg']);
                                    if(response['msg'] == 'success') {
                                        alert("예약 생성 성공");
 
-                                       location.href = './deliveryResult.html' + "?" + address + ":" + date  + ":" + money + ":" + currency + ":" + name + ":" + phoneNumber;
+                                       location.href = './deliveryResult.html' + "?" + address + ":" + date  + ":" + money + ":" + currency + ":" + name + ":" + phoneNumber + ":" + account + ":" + resultMoney;
                                    }
                                 },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
                             });
-                        }.error:function(request,status,error){    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+
+                        },error:function(request,status,error){    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
                     });
                 });
             });
@@ -50,7 +51,7 @@
     <body>
         <table>
             <tr>
-                <td><p>배송희망일(yyyy,mm,dd): </p></td>
+                <td><p>배송희망일: </p></td>
                 <td><input id="date"/></td>
             </tr>
             <tr>
