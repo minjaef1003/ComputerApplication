@@ -21,7 +21,7 @@ module.exports = function (app) {
         var kind = req.body.card_kind;
         var memo = req.body.card_memo;
         var state = 'request';
-        var time = Date();
+        var time = Date.now();
         var sql = 'INSERT INTO requestinfo (card_user,card_sex,card_birthday,card_kind,card_memo,card_state,request_date) VALUES(?,?,?,?,?,?,?)';
         var params = [username, sex, birthday, kind, memo, state, time];
         connection.query(sql, params, function (err, rows, fields) {
@@ -62,7 +62,7 @@ module.exports = function (app) {
         var userbirth = req.body.regist_birthday;
         var cardname = req.body.regist_card;
         var state = 'regist'
-        var time = Date();
+        var time = Date.now();
         var sql = 'UPDATE requestinfo SET card_state=?,regist_date=? WHERE card_user=? AND card_kind=? AND card_birthday=?';
         connection.query(sql, [state, time, username, cardname, userbirth], function (err, rows, fields) {
             if (err) {
