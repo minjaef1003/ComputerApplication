@@ -5,7 +5,7 @@ html
 	body
 		h1 Card Regist
 		p please input your infomation and Card
-		form(action='/process/regist_complete' method='post')
+		form(action='/process/card/regist_complete' method='post')
 			p
 				input(type='text' name='regist_name' placeholder='input name')
 			p
@@ -15,6 +15,6 @@ html
 			p
 				input(type='submit' value='Regist')
 
-		form(action='/process/card' method='get')
+		form(action='/process/card/card' method='get')
 			p
 				input(type='submit' value='Back Home')

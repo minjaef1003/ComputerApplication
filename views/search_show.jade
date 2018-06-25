@@ -8,7 +8,7 @@ html
 			each row in rows	
 				li
 					h3
-						a(href='/process/search_show/'+row.card_id)= row.card_kind
+						a(href='/process/card/search_show/'+row.card_id)= row.card_kind
 		artcle
 			if card
 				li
@@ -30,4 +30,4 @@ html
 				a select your cardname
 		
 		h2
-			a(href='/process/card')= 'Back Card Home'
+			a(href='/process/card/card')= 'Back Card Home'
