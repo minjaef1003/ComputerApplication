@@ -2,13 +2,14 @@
 var mysql = require('mysql');
 
 
-
 //===== MySQL 데이터베이스 연결 설정 =====//
-var connection      =    mysql.createConnection({
+var pool      =    mysql.createPool({
+    connectionLimit : 10, 
     host     : 'localhost',
     user     : 'root',
     password : 'cjswo465',
     database : 'computerapplication',
+    debug    :  false
 });
 
 

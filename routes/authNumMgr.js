@@ -15,6 +15,7 @@ var withdrawmobileatmaccount = function(req, res) {
     res.write('var tmp = (accNum * timestamp) % 1000000;');
     res.write('if (tmp < 100000) tmp += 100000;');
     res.write('return tmp; }');
+    res.write("function timerStart() { tid = setInterval('timer()', 1000) };");
     res.write('function timer() {');
     res.write('var msg = "남은 시간 : " + limitTime + "초";');
     res.write('document.all.limitTime.innerHTML = msg;');
@@ -25,14 +26,14 @@ var withdrawmobileatmaccount = function(req, res) {
     res.write('authNum = generateAuthNum(countNum, timestamp);');
     res.write('tempString = "인증번호 : " + authNum;');
     res.write('$("#auth_num").text(tempString);');
-    res.write("window.onload = function timerStart() { tid = setInterval('timer()', 1000) };");
+    res.write("timerStart();");
     res.write('$("#regenerate").click(function(){');
     res.write('timestamp = new Date().getTime();');
     res.write('authNum = generateAuthNum(countNum, timestamp);');
     res.write('tempString = "인증번호 : " + authNum;');
     res.write('$("#auth_num").text(tempString);');
     res.write('limitTime = 60;');
-    res.write("window.onload = function timerStart() { tid = setInterval('timer()', 1000) }; }); }); </script></head><body>");
+    res.write("timerStart(); }); }); </script></head><body>");
     res.write('<h1>모바일ATM 출금</h1>');
     res.write('<div id="auth_num"></div><br>');
     res.write('<div id="limitTime"></div><br>');

@@ -66,9 +66,10 @@ var checkMyAccount = function(ID, callback) {
           
         var columns = ['count_date', 'count_rate', 'count_num', 'count_bal', 'count_type', 'count_owner', 'count_ownerID', 'isMobileATM'];
         var tablename = 'countinformation';
- 
+        
+        
         // SQL 문을 실행합니다.
-        var exec = conn.query("select ?? from ?? where count_ownerID is ID", [columns, tablename], function(err, rows) {
+        var exec = conn.query("select ?? from ?? where count_ownerID = ?", [columns, tablename, ID], function(err, rows) {
             conn.release();  // 반드시 해제해야 함
             console.log('실행 대상 SQL : ' + exec.sql);
             
@@ -90,7 +91,7 @@ var checkMyAccount = function(ID, callback) {
 }
 
 //계좌를 등록하는 함수
-var registAccount = function(count_rate, count_num, count_type, count_owner, count_ownerID, callback) {
+var registAccount = function(count_rate, count_type, count_owner, count_ownerID, callback) {
     
 	// 커넥션 풀에서 연결 객체를 가져옴
 	pool.getConnection(function(err, conn) {
@@ -104,7 +105,7 @@ var registAccount = function(count_rate, count_num, count_type, count_owner, cou
         }   
 
     	// 데이터를 객체로 만듦
-    	var data = {count_rate:count_rate, count_num:count_num, count_bal:0, count_type:count_type, count_owner:count_owner, count_ownerID:count_ownerID};
+    	var data = {count_rate:count_rate, count_bal:0, count_type:count_type, count_owner:count_owner, count_ownerID:count_ownerID};
     	
         // SQL 문을 실행함
         var exec = conn.query('insert into countinformation set count_date = curdate(), ?', data, function(err, result) {
@@ -296,8 +297,7 @@ var routeCheckAllAccount = function(req, res) {
 // 내 계좌 목록 라우팅 함수
 var routeCheckMyAccount = function(req, res) {
     console.log('/process/routeCheckMyAccount 호출됨.');
-    
-    var paramID = req.body.ID || req.query.ID;
+    var paramID = req.user[0]["id"];
     // pool 객체가 초기화된 경우, checkMyAccount 함수 호출하여 계좌 목록 전송
     if (pool) {
         checkMyAccount(paramID, function(err, accountList) {
@@ -326,14 +326,13 @@ var routeRegistAccount = function(req, res) {
     console.log('/process/routeRegistAccount 호출됨.');
     
     var paramRate = req.body.count_rate || req.query.count_rate;
-    var paramNum = req.body.count_num || req.query.count_num;
     var paramType = req.body.count_type || req.query.count_type;
-    var paramName = req.body.count_owner || req.count_owner;
-    var paramID = req.body.count_ownerID || req.query.count_ownerID;
+    var paramName = req.user[0]["Name"];
+    var paramID = req.user[0]["id"];
     
     // pool 객체가 초기화된 경우, registAccount 함수 호출하여 계좌 등록
     if (pool) {
-        registAccount(paramRate, paramNum, paramType, paramName, paramID, function(err, addedAccount) {
+        registAccount(paramRate, paramType, paramName, paramID, function(err, addedAccount) {
 			// 동일한 계좌번호로 추가하려는 경우 에러 발생 - 클라이언트로 에러 전송
 			if (err) {
                 console.error('계좌 추가 중 에러 발생 : ' + err.stack);
