@@ -5,8 +5,8 @@ module.exports = function (app) {
     var connection = mysql.createConnection({
         host: 'localhost',
         user: 'root',
-        password: '111111',
-        database: 'o2'
+        password: 'cjswo465',
+        database: 'computerapplication'
     });
     var bodyParser = require('body-parser');
     app.set('view engine', 'jade');
