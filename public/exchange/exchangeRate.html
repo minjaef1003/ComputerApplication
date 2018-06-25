@@ -5,37 +5,74 @@
         <title>환율조회 입력화면</title>
         <script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>
         <script>
+            function compareDatePast(year, month, day) {
+                var date = new Date();
+                var nowYear = date.getFullYear();
+                var nowMonth = date.getMonth() + 1;
+                var nowDay = date.getDate();
+                
+                if((year < nowYear) || (year == nowYear && month < nowMonth) || (year == nowYear && month == nowMonth && day <= nowDay)) {
+                     return true;
+                }
+                return false;
+            }
             $(document).ready(function() {
                 $("button").click(function() {
+                    var year = $("#year").val();
+                    var month = $("#month").val();
+                    var day = $("#day").val();
                     var dateString = "";
-                    dateString += $("#year").val() + "," + $("#month").val() + "," + $("#day").val();
-                    $.ajax({
-                        url:"http://localhost:3000/process/showexchangeratedate",
-                        type:"POST",
-                        dataType:"JSON",
-                        data: {dateString: dateString},
-                        success: function(response){
-                            var tempString = "";
-                            for(var i = 0; i < response.length; i++){
-                                tempString += "<tr>";
-                                tempString += "<td>" + response[i]['currency'] + "</td><td>" + response[i]['exchangeRate'] + "</td>";
-                                tempString += "</tr>";
-                            }
-                            $("#exchangeList").append(tempString);
-                        },error:function(request,status,error){    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
-                    });
                     
+                    dateString += year;
+                    if(month < 10){
+                        dateString += "0" + month;
+                    } else{
+                        dateString += month;
+                    }
+                    if(day < 10){
+                        dateString += "0" + day;
+                    } else{
+                        dateString += day;
+                    }
+                    
+                    var isPast = compareDatePast(year, month, day);
+                    
+                    if(isPast) {
+                        $.ajax({
+                            url:"http://localhost:3000/process/showexchangeratedate",
+                            type:"POST",
+                            dataType:"JSON",
+                            data: {dateString: dateString},
+                            success: function(response){
+                                if(res[0]['msg'] != "undefined") {
+                                    var tempString = "";
+                                    for(var i = 0; i < response.length; i++){
+                                        tempString += "<tr>";
+                                        tempString += "<td>" + response[i]['currency'] + "</td><td>" + response[i]['exchangeRate'] + "</td>";
+                                        tempString += "</tr>";
+                                    }
+                                    $("#exchangeList").append(tempString);
+                                } else {
+                                    alert("환율이 존재하지 않습니다.");
+                                }
+                            },error:function(request,status,error){    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+                        });                      
+                    } else {
+                        alert("환율 조회는 과거의 일자만 가능합니다.");
+                    }
                 });
             });
         </script>
 	</head>
     <body>
-        <h1>환율일자 입력</h1>
-        <P>년: <input id="year"/></P>
-        <P>월: <input id="month"/></P>
-        <P>일: <input id="day"/></P>
-        <button>조회</button>
-        <h1>환율조회 결과</h1>
+       <h2>환율일자 입력</h2>
+        <table>
+        <td>년: <input id="year" style="width:50px"/></td>
+        <td>월: <input id="month" style="width:50px"/></td>
+        <td>일: <input id="day" style="width:50px"/></td>
+        <td><button>조회</button></td>
+        </table>
+       <h2>환율조회 결과</h2>
         <table id="exchangeList">
             <tr>
                 <td>통화</td>

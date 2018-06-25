@@ -121,7 +121,8 @@ var showexchangeratedate = function(req, res) {
                 });
             } else {
                 console.log('환율 조회 - 날짜 불러오기 실패');
-                res.send(200, false);
+                var msg = {msg : 'exchange non-exist'};
+                res.send(msg);
                 res.end();
             }
         });
@@ -513,48 +514,54 @@ var createstorereservation = function(req, res) {
         seachAccount(account, function(err, callback) {
             if(callback) {
                 if(id == callback[0]["count_ownerID"]) {
-                    withdrawAccount(account, resultMoney, function(err, callback) {
+                    if(resultMoney <= callback[0]["count_bal"]) {
+                        withdrawAccount(account, resultMoney, function(err, callback) {
+                            if (err) {
+                                console.error('출금 중 에러 발생 : ' + err.stack);
+                                return;
+                            }
+
+                            if (account) {
+                                console.log('출금 성공');
+    //                            res.send({msg:"success"});
+                            } else {
+                                console.log('출금 실패');
+                                res.send(200, false);
+                                res.end();
+                            }   
+                        });
+                        //createStore
+                        createStoreReservation(store, date, money, currency, customer, account, resultMoney, function(err, callback) {
                         if (err) {
-                            console.error('출금 중 에러 발생 : ' + err.stack);
+                            console.error('영업점 수령 예약 생성 불러오는 중 에러 발생 : ' + err.stack);
+
+                            res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
+                            res.write('<h2>영업점 수령 예약 생성 중 에러 발생</h2>');
+                            res.write('<p>' + err.stack + '</p>');
+                            res.end();
+
                             return;
                         }
 
-                        if (account) {
-                            console.log('출금 성공');
-//                            res.send({msg:"success"});
-                        } else {
-                            console.log('출금 실패');
-                            res.send(200, false);
+                        if (callback) {
+                            console.log('영업점 수령 예약 생성 불러오기 성공');
+
+                            res.send(callback);
                             res.end();
-                        }   
-                    });
-                    //createStore
-                    createStoreReservation(store, date, money, currency, customer, account, resultMoney, function(err, callback) {
-                    if (err) {
-                        console.error('영업점 수령 예약 생성 불러오는 중 에러 발생 : ' + err.stack);
 
-                        res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
-                        res.write('<h2>영업점 수령 예약 생성 중 에러 발생</h2>');
-                        res.write('<p>' + err.stack + '</p>');
-                        res.end();
-
-                        return;
-                    }
-
-                    if (callback) {
-                        console.log('영업점 수령 예약 생성 불러오기 성공');
-
-                        res.send(callback);
-                        res.end();
+                        } else {
+                            console.log('영업점 수령 예약 생성 불러오기 실패');
+                            res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
+                            res.write('<h2>영업점 수령 예약 생성 실패</h2>');
+                            res.end();            }
+                        });
 
                     } else {
-                        console.log('영업점 수령 예약 생성 불러오기 실패');
-                        res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
-                        res.write('<h2>영업점 수령 예약 생성 실패</h2>');
-                        res.end();            }
-                    });
-                    
-                    
+                        console.log("잔액 부족");
+                        var msg = {msg : 'low balance'};
+                        res.send(msg);
+                        res.end();
+                    }
                 }
                 else {
                     console.log("계좌주 미일치");
@@ -630,48 +637,55 @@ var createairportreservation = function(req, res) {
         seachAccount(account, function(err, callback) {
             if(callback) {
                 if(id == callback[0]["count_ownerID"]) {
-                    withdrawAccount(account, resultMoney, function(err, callback) {
-                        if (err) {
-                            console.error('출금 중 에러 발생 : ' + err.stack);
-                            return;
-                        }
+                    if(resultMoney <= callback[0]["count_bal"]) {
+                        withdrawAccount(account, resultMoney, function(err, callback) {
+                            if (err) {
+                                console.error('출금 중 에러 발생 : ' + err.stack);
+                                return;
+                            }
 
-                        if (account) {
-                            console.log('출금 성공');
-//                            res.send({msg:"success"});
-                        } else {
-                            console.log('출금 실패');
-                            res.send(200, false);
-                            res.end();
-                        }   
-                    });
+                            if (account) {
+                                console.log('출금 성공');
+    //                            res.send({msg:"success"});
+                            } else {
+                                console.log('출금 실패');
+                                res.send(200, false);
+                                res.end();
+                            }   
+                        });
 
-                    //createAirport
-                    createAirportReservation(phoneNumber, date, money, currency, customer, account, resultMoney, function(err, callback) {
-                        if (err) {
-                            console.error('인천공항 환전소 수령 예약 생성 불러오는 중 에러 발생 : ' + err.stack);
+                        //createAirport
+                        createAirportReservation(phoneNumber, date, money, currency, customer, account, resultMoney, function(err, callback) {
+                            if (err) {
+                                console.error('인천공항 환전소 수령 예약 생성 불러오는 중 에러 발생 : ' + err.stack);
 
-                            res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
-                            res.write('<h2>인천공항 환전소 수령 예약 생성 중 에러 발생</h2>');
-                            res.write('<p>' + err.stack + '</p>');
-                            res.end();
+                                res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
+                                res.write('<h2>인천공항 환전소 수령 예약 생성 중 에러 발생</h2>');
+                                res.write('<p>' + err.stack + '</p>');
+                                res.end();
 
-                            return;
-                        }
+                                return;
+                            }
 
-                        if (callback) {
-                            console.log('인천공항 환전소 수령 예약 생성 불러오기 성공');
+                            if (callback) {
+                                console.log('인천공항 환전소 수령 예약 생성 불러오기 성공');
 
-                            res.send(callback);
-                            res.end();
+                                res.send(callback);
+                                res.end();
 
-                        } else {
-                            console.log('인천공항 환전소 수령 예약 생성 불러오기 실패');
-                            res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
-                            res.write('<h2>인천공항 환전소 수령 예약 생성 실패</h2>');
-                            res.end();            
-                        }
-                    });
+                            } else {
+                                console.log('인천공항 환전소 수령 예약 생성 불러오기 실패');
+                                res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
+                                res.write('<h2>인천공항 환전소 수령 예약 생성 실패</h2>');
+                                res.end();            
+                            }
+                        });
+                    } else {
+                        console.log("잔액 부족");
+                        var msg = {msg : 'low balance'};
+                        res.send(msg);
+                        res.end();
+                    }
                 }
                 else {
                     console.log("계좌주 미일치");
@@ -748,46 +762,53 @@ var createdeliveryreservation = function(req, res) {
         seachAccount(account, function(err, callback) {
             if(callback) {
                 if(id == callback[0]["count_ownerID"]) {
-                    withdrawAccount(account, resultMoney, function(err, callback) {
-                        if (err) {
-                            console.error('출금 중 에러 발생 : ' + err.stack);
-                            return;
-                        }
+                    if(resultMoney <= callback[0]["count_bal"]) {
+                        withdrawAccount(account, resultMoney, function(err, callback) {
+                            if (err) {
+                                console.error('출금 중 에러 발생 : ' + err.stack);
+                                return;
+                            }
 
-                        if (account) {
-                            console.log('출금 성공');
-//                            res.send({msg:"success"});
-                        } else {
-                            console.log('출금 실패');
-                            res.send(200, false);
-                            res.end();
-                        }   
-                    });
-                    //createDelivery
-                    createDeliveryReservaion(address, date, money, currency, receiver, phoneNumber, account, resultMoney, function(err, callback) {
-                        if (err) {
-                            console.error('배달 예약 생성 불러오는 중 에러 발생 : ' + err.stack);
+                            if (account) {
+                                console.log('출금 성공');
+    //                            res.send({msg:"success"});
+                            } else {
+                                console.log('출금 실패');
+                                res.send(200, false);
+                                res.end();
+                            }   
+                        });
+                        //createDelivery
+                        createDeliveryReservaion(address, date, money, currency, receiver, phoneNumber, account, resultMoney, function(err, callback) {
+                            if (err) {
+                                console.error('배달 예약 생성 불러오는 중 에러 발생 : ' + err.stack);
 
-                            res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
-                            res.write('<h2>배달 예약 생성 중 에러 발생</h2>');
-                            res.write('<p>' + err.stack + '</p>');
-                            res.end();
+                                res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
+                                res.write('<h2>배달 예약 생성 중 에러 발생</h2>');
+                                res.write('<p>' + err.stack + '</p>');
+                                res.end();
 
-                            return;
-                        }
+                                return;
+                            }
 
-                        if (callback) {
-                            console.log('배달 예약 생성 불러오기 성공');
+                            if (callback) {
+                                console.log('배달 예약 생성 불러오기 성공');
 
-                            res.send(callback);
-                            res.end();
+                                res.send(callback);
+                                res.end();
 
-                        } else {
-                            console.log('배달 예약 생성 불러오기 실패');
-                            res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
-                            res.write('<h2>배달 예약 생성 실패</h2>');
-                            res.end();            }
-                    });
+                            } else {
+                                console.log('배달 예약 생성 불러오기 실패');
+                                res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
+                                res.write('<h2>배달 예약 생성 실패</h2>');
+                                res.end();            }
+                        });
+                    } else {
+                        console.log("잔액 부족");
+                        var msg = {msg : 'low balance'};
+                        res.send(msg);
+                        res.end();
+                    }
                 } else {
                     console.log("계좌주 미일치");
                     var msg = {msg : 'account fail'};

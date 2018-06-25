@@ -39,17 +39,7 @@
                     $("#resultMoney").text(resultMoney);
                 });
                 
-                $("#accontCheck").click(function() {
-                    $.ajax({
-                        url:"http://localhost:3000/process/checkAccount",
-                        type:"POST",
-                        dataType:"JSON",
-                        data: {account: $("#account").val()},
-                        success: function(response){
-                            alert("account success");
-                        },error:function(request,status,error){    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
-                    });
-                });
+               
             });
             
             function sendCurrAndMoney(url) {
