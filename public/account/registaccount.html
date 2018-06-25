@@ -7,16 +7,13 @@
         <script>
             $(document).ready(function() {
                 $("#Button").click(function() {
-                    var count_owner = $("#count_owner").val();
-                    var count_ownerID = $("#count_ownerID").val();
-                    var count_num = $("#count_num").val();
                     var count_rate = $("#count_rate").val();
                     var count_type = $("#count_type").val();
                     $.ajax({
                         url:"http://localhost:3000/process/routeRegistAccount",
                         type:"POST",
                         dataType:"JSON",
-                        data: {count_owner:count_owner, count_ownerID: count_ownerID, count_num: count_num, count_rate:count_rate, count_type:count_type},
+                        data: {count_rate:count_rate, count_type:count_type},
                         success: function(response){
                             if(response['msg'] == 'success')
                                 alert("계좌 등록 성공");
@@ -29,18 +26,6 @@
     <body>
         <h1>계좌 등록</h1>
             <table>
-                <tr>
-                    <td><label>계좌주</label></td>
-                    <td><input type="text" id="count_owner" ></td>
-                </tr>
-                <tr>
-                    <td><label>계좌주ID</label></td>
-                    <td><input type="text" id="count_ownerID" ></td>
-                </tr>
-                <tr>
-                    <td><label>계좌번호</label></td>
-                    <td><input type="text" id="count_num" ></td>
-                </tr>
                 <tr>
                     <td><label>계좌금리</label></td>
                     <td><input type="text" id="count_rate" ></td>
