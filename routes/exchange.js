@@ -575,7 +575,7 @@ var createstorereservation = function(req, res) {
 }
 
 // 인천공항 환전소에서 수령 예약 생성 함수
-var createAirportReservation = function(phoneNumber, date, money, currency, customer, callback){
+var createAirportReservation = function(phoneNumber, date, money, currency, customer, account, resultMoney, callback){
      pool.getConnection(function(err, conn) {
         if(err) {
             if(conn) {
@@ -585,7 +585,7 @@ var createAirportReservation = function(phoneNumber, date, money, currency, cust
             return;
         }
         
-        var exec = conn.query("insert into listAirportReservation(phoneNumber, date, money, currency, customer) values('" + phoneNumber + "', '" + date + "', " + money + ", '" + currency + "', '" + customer + "')", function(err, rows) {
+        var exec = conn.query("insert into listAirportReservation(phoneNumber, date, money, currency, customer, account, resultMoney) values('" + phoneNumber + "', '" + date + "', " + money + ", '" + currency + "', '" + customer + "', '" + account + "', " + resultMoney + "')", function(err, rows) {
             conn.release();
             console.log('실행 대상 SQL : ' + exec.sql);
             
@@ -619,32 +619,72 @@ var createairportreservation = function(req, res) {
     var money = req.body.money || req.query.money;
     var currency = req.body.currency || req.query.currency;
     var customer = req.body.customer || req.query.customer;
-    
+    var account = req.body.account || req.query.account;
+    var resultMoney = req.body.resultMoney || req.query.resultMoney;
+
+    var id = req.user[0]["id"];
+
     // pool 객체가 초기화된 경우, createStoreReservation 함수 호출하여 영업점 수령 예약 생성
     if (pool) {
-        createAirportReservation(phoneNumber, date, money, currency, customer, function(err, callback) {
-            if (err) {
-                console.error('인천공항 환전소 수령 예약 생성 불러오는 중 에러 발생 : ' + err.stack);
-                  
-                res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
-				res.write('<h2>인천공항 환전소 수령 예약 생성 중 에러 발생</h2>');
-                res.write('<p>' + err.stack + '</p>');
-				res.end();
-                
-                return;
-            }
-            
-            if (callback) {
-                console.log('인천공항 환전소 수령 예약 생성 불러오기 성공');
-                
-				res.send(callback);
-				res.end();
+        console.log('계좌 확인');
+        seachAccount(account, function(err, callback) {
+            if(callback) {
+                if(id == callback[0]["count_ownerID"]) {
+                    withdrawAccount(account, resultMoney, function(err, callback) {
+                        if (err) {
+                            console.error('출금 중 에러 발생 : ' + err.stack);
+                            return;
+                        }
 
+                        if (account) {
+                            console.log('출금 성공');
+//                            res.send({msg:"success"});
+                        } else {
+                            console.log('출금 실패');
+                            res.send(200, false);
+                            res.end();
+                        }   
+                    });
+
+                    //createAirport
+                    createAirportReservation(phoneNumber, date, money, currency, customer, account, resultMoney, function(err, callback) {
+                        if (err) {
+                            console.error('인천공항 환전소 수령 예약 생성 불러오는 중 에러 발생 : ' + err.stack);
+
+                            res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
+                            res.write('<h2>인천공항 환전소 수령 예약 생성 중 에러 발생</h2>');
+                            res.write('<p>' + err.stack + '</p>');
+                            res.end();
+
+                            return;
+                        }
+
+                        if (callback) {
+                            console.log('인천공항 환전소 수령 예약 생성 불러오기 성공');
+
+                            res.send(callback);
+                            res.end();
+
+                        } else {
+                            console.log('인천공항 환전소 수령 예약 생성 불러오기 실패');
+                            res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
+                            res.write('<h2>인천공항 환전소 수령 예약 생성 실패</h2>');
+                            res.end();            
+                        }
+                    });
+                }
+                else {
+                    console.log("계좌주 미일치");
+                    var msg = {msg : 'account fail'};
+                    res.send(msg);
+                    res.end();
+                }
             } else {
-                console.log('인천공항 환전소 수령 예약 생성 불러오기 실패');
-                res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
-				res.write('<h2>인천공항 환전소 수령 예약 생성 실패</h2>');
-				res.end();            }
+                console.log("계좌 없음");
+                 var msg = {msg : 'account nothing'};
+                res.send(msg);
+                res.end();
+            }
         });
     } else {  // 데이터베이스 객체가 초기화되지 않은 경우 실패 응답 전송
 		console.log('데이터베이스 연결 실패');
@@ -652,7 +692,7 @@ var createairportreservation = function(req, res) {
 }
 
 // 배달 예약 생성 함수
-var createDeliveryReservaion = function(address, date, money, currency, receiver, phoneNumber, callback) {
+var createDeliveryReservaion = function(address, date, money, currency, receiver, phoneNumber, account, resultMoney, callback) {
      pool.getConnection(function(err, conn) {
         if(err) {
             if(conn) {
@@ -662,7 +702,7 @@ var createDeliveryReservaion = function(address, date, money, currency, receiver
             return;
         }
         
-        var exec = conn.query("insert into listDeliveryReservation(address, date, money, currency, receiver, phoneNumber) values('" + address + "', '" + date + "', " + money + ", '" + currency + "', '" + receiver + "', '" + phoneNumber + "')", function(err, rows) {
+        var exec = conn.query("insert into listDeliveryReservation(address, date, money, currency, receiver, phoneNumber) values('" + address + "', '" + date + "', " + money + ", '" + currency + "', '" + receiver + "', '" + phoneNumber + "', '" + account + "', " + resultMoney + "')", function(err, rows) {
             conn.release();
             console.log('실행 대상 SQL : ' + exec.sql);
             
@@ -697,32 +737,69 @@ var createdeliveryreservation = function(req, res) {
     var money = req.body.money || req.query.money;
     var currency = req.body.currency || req.query.currency;
     var receiver = req.body.receiver || req.query.receiver;
-    
+    var account = req.body.account || req.query.account;
+    var resultMoney = req.body.resultMoney || req.query.resultMoney;
+
+    var id = req.user[0]["id"];
+
     // pool 객체가 초기화된 경우, createStoreReservation 함수 호출하여 영업점 수령 예약 생성
     if (pool) {
-        createDeliveryReservaion(address, date, money, currency, receiver, phoneNumber, function(err, callback) {
-            if (err) {
-                console.error('배달 예약 생성 불러오는 중 에러 발생 : ' + err.stack);
-                  
-                res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
-				res.write('<h2>배달 예약 생성 중 에러 발생</h2>');
-                res.write('<p>' + err.stack + '</p>');
-				res.end();
-                
-                return;
-            }
-            
-            if (callback) {
-                console.log('배달 예약 생성 불러오기 성공');
-                
-				res.send(callback);
-				res.end();
+                console.log('계좌 확인');
+        seachAccount(account, function(err, callback) {
+            if(callback) {
+                if(id == callback[0]["count_ownerID"]) {
+                    withdrawAccount(account, resultMoney, function(err, callback) {
+                        if (err) {
+                            console.error('출금 중 에러 발생 : ' + err.stack);
+                            return;
+                        }
 
+                        if (account) {
+                            console.log('출금 성공');
+//                            res.send({msg:"success"});
+                        } else {
+                            console.log('출금 실패');
+                            res.send(200, false);
+                            res.end();
+                        }   
+                    });
+                    //createDelivery
+                    createDeliveryReservaion(address, date, money, currency, receiver, phoneNumber, function(err, callback) {
+                        if (err) {
+                            console.error('배달 예약 생성 불러오는 중 에러 발생 : ' + err.stack);
+
+                            res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
+                            res.write('<h2>배달 예약 생성 중 에러 발생</h2>');
+                            res.write('<p>' + err.stack + '</p>');
+                            res.end();
+
+                            return;
+                        }
+
+                        if (callback) {
+                            console.log('배달 예약 생성 불러오기 성공');
+
+                            res.send(callback);
+                            res.end();
+
+                        } else {
+                            console.log('배달 예약 생성 불러오기 실패');
+                            res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
+                            res.write('<h2>배달 예약 생성 실패</h2>');
+                            res.end();            }
+                    });
+                } else {
+                    console.log("계좌주 미일치");
+                    var msg = {msg : 'account fail'};
+                    res.send(msg);
+                    res.end();
+                }
             } else {
-                console.log('배달 예약 생성 불러오기 실패');
-                res.writeHead('200', {'Content-Type':'text/html;charset=utf8'});
-				res.write('<h2>배달 예약 생성 실패</h2>');
-				res.end();            }
+                console.log("계좌 없음");
+                 var msg = {msg : 'account nothing'};
+                res.send(msg);
+                res.end();
+            }
         });
     } else {  // 데이터베이스 객체가 초기화되지 않은 경우 실패 응답 전송
 		console.log('데이터베이스 연결 실패');

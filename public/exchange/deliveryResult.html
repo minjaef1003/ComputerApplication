@@ -13,13 +13,18 @@
                 var currency = data[1].split(':')[3];
                 var name = data[1].split(':')[4];
                 var phoneNumber = data[1].split(':')[5];
-                
+                var account = data[1].split(':')[6];
+                var resultMoney = data[1].split(':')[7];
+
                 $("#date").text(date);
                 $("#address").text(address);
                 $("#name").text(name);
                 $("#money").text(money);
                 $("#currency").text(currency);
                 $("#phoneNumber").text(phoneNumber);
+                $("#account").text(account);
+                $("#resultMoney").text(resultMoney);
+
             });
         </script>
 	</head>
@@ -50,6 +55,15 @@
                 <td><p>환전금액: </p></td>
                 <td><text id="money"/></td>
             </tr>
+            <tr>
+                <td><p>출금계좌: </p></td>
+                <td><text id="account"/></td>
+            </tr>
+            <tr>
+                <td><p>출금금액: </p></td>
+                <td><text id="resultMoney"/></td>
+            </tr>
+
         </table>
          <a href="./exchangeUI.html">
            <button>환전 홈으로 돌아가기</button>

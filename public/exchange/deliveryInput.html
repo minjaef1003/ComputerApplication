@@ -16,20 +16,32 @@
                     var date = $("#date").val();
                     var name = $("#name").val();
                     var phoneNumber = $("#phoneNumber").val();
-                    
+                    var account = $("#account").val();
+
                     $.ajax({
-                        url:"http://localhost:3000/process/createdeliveryreservation",
+                        url:"http://localhost:3000/process/showexchangeratelatest",
                         type:"POST",
                         dataType:"JSON",
-                        data: {address:address, date: date, money: money, currency:currency, receiver:name, phoneNumber: phoneNumber},
+                        data: {currency: currency},
                         success: function(response){
-                            console.log(response['msg']);
-                           if(response['msg'] == 'success') {
-                               alert("예약 생성 성공");
-                               
-                               location.href = './deliveryResult.html' + "?" + address + ":" + date  + ":" + money + ":" + currency + ":" + name + ":" + phoneNumber;
-                           }
-                        },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+                            var exchangeRate = response[0]["exchangeRate"];
+                            var resultMoney = money * exchangeRate;
+                            console.log(resultMoney);
+                            $.ajax({
+                                url:"http://localhost:3000/process/createdeliveryreservation",
+                                type:"POST",
+                                dataType:"JSON",
+                                data: {address:address, date: date, money: money, currency:currency, receiver:name, phoneNumber: phoneNumber},
+                                success: function(response){
+                                    console.log(response['msg']);
+                                   if(response['msg'] == 'success') {
+                                       alert("예약 생성 성공");
+
+                                       location.href = './deliveryResult.html' + "?" + address + ":" + date  + ":" + money + ":" + currency + ":" + name + ":" + phoneNumber;
+                                   }
+                                },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+                            });
+                        }.error:function(request,status,error){    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
                     });
                 });
             });
@@ -52,6 +64,10 @@
             <tr>
                 <td><p>휴대전화번호(000-0000-0000): </p></td>
                 <td><input id="phoneNumber"/></td>
+            </tr>
+            <tr>
+                <td><p>출금 계좌: </p></td>
+                <td><input id="account"/></td>
             </tr>
         </table>
         <button id="createReservation">수령 예약 생성</button>
