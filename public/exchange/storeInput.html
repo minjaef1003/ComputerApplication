@@ -27,7 +27,7 @@
                     var date = $("#date").val();
                     var name = $("#name").val();
                     var account = $("#account").val();
-                    var resultMoney;
+
                     $.ajax({
                         url:"http://localhost:3000/process/showexchangeratelatest",
                         type:"POST",
@@ -35,7 +35,7 @@
                         data: {currency: currency},
                         success: function(response){
                             var exchangeRate = response[0]["exchangeRate"];
-                            resultMoney = money * exchangeRate;
+                            var resultMoney = money * exchangeRate;
                             console.log(resultMoney);
                             $.ajax({
                                 url:"http://localhost:3000/process/createstorereservation",

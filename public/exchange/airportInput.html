@@ -14,20 +14,36 @@
                     var phoneNumber = $("#phoneNumber").val();
                     var date = $("#date").val();
                     var name = $("#name").val();
+                    var account = $("#account").val();
                     
                     $.ajax({
-                        url:"http://localhost:3000/process/createairportreservation",
+                        url:"http://localhost:3000/process/showexchangeratelatest",
                         type:"POST",
                         dataType:"JSON",
-                        data: {phoneNumber:phoneNumber, date: date, money: money, currency:currency, customer:name},
+                        data: {currency: currency},
                         success: function(response){
-                            console.log(response['msg']);
-                           if(response['msg'] == 'success') {
-                               alert("예약 생성 성공");
-                               
-                               location.href = './airportResult.html' + "?" + phoneNumber + ":" + date  + ":" + money + ":" + currency + ":" + name;
-                           }
-                        },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+                            var exchangeRate = response[0]["exchangeRate"];
+                            var resultMoney = money * exchangeRate;
+                            console.log(resultMoney);
+                            $.ajax({
+                                url:"http://localhost:3000/process/createairportreservation",
+                                type:"POST",
+                                dataType:"JSON",
+                                data: {phoneNumber:phoneNumber, date: date, money: money, currency:currency, customer:name, account: account, resultMoney: resultMoney},
+                                success: function(response){
+                                    console.log(response['msg']);
+                                    if(response['msg'] == 'success') {
+                                       alert("예약 생성 성공");
+
+                                       location.href = './airportResult.html' + "?" + phoneNumber + ":" + date  + ":" + money + ":" + currency + ":" + name+ ":" + account + ":" + resultMoney;
+                                    } else if(response['msg'] == 'account fail') {
+                                             alert("계좌 미일치");
+                                    } else if(response['msg'] == 'account nothing') {
+                                             alert("계좌가 존재하지 않습니다.");
+                                    }   
+                                },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+                            });
+                        }.error:function(request,status,error){    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
                     });
                 });
             });
@@ -46,6 +62,10 @@
             <tr>
                 <td><p>휴대전화번호(000-0000-0000): </p></td>
                 <td><input id="phoneNumber"/></td>
+            </tr>
+            <tr>
+                <td><p>출금 계좌: </p></td>
+                <td><input id="account"/></td>
             </tr>
         </table>
         <button id="createReservation">수령 예약 생성</button>
