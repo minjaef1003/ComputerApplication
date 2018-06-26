@@ -24,12 +24,12 @@
                     var dateString = "";
                     
                     dateString += year;
-                    if(month < 10){
+                    if(month.charAt(0) != 0 && month < 10){
                         dateString += "0" + month;
                     } else{
                         dateString += month;
                     }
-                    if(day < 10){
+                    if(day.charAt(0) != 0 && day < 10){
                         dateString += "0" + day;
                     } else{
                         dateString += day;
@@ -44,7 +44,7 @@
                             dataType:"JSON",
                             data: {dateString: dateString},
                             success: function(response){
-                                if(res[0]['msg'] != "undefined") {
+                                if(response['msg'] != "exchange non-exist") {
                                     var tempString = "";
                                     for(var i = 0; i < response.length; i++){
                                         tempString += "<tr>";
@@ -79,5 +79,8 @@
                 <td>환율</td>
             </tr>
         </table>
+        <a href="/main">
+            <button>메인화면</button>
+        </a>
     </body>
 </html>

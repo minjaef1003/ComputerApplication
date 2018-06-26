@@ -462,7 +462,6 @@ var routeTransferAccount = function(req, res) {
             }
             if (account) {
                 console.log('출금 성공');
-                res.end();
             } else {
                 console.log('출금 실패');
                 res.send(200, false);
@@ -476,7 +475,8 @@ var routeTransferAccount = function(req, res) {
             }
             if (account) {
                 console.log('입금 성공');
-                res.send({msg:"success"});
+                var msg ={msg:"success"};
+                res.send(msg);
                 res.end();
             } else {
                 console.log('입금 실패');
