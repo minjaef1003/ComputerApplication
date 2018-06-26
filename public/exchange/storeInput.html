@@ -41,12 +41,12 @@
                     var date = "";
                     
                     date += year;
-                    if(month < 10){
+                    if(month.charAt(0) != 0 && month < 10){
                         date += "0" + month;
                     } else{
                         date += month;
                     }
-                    if(day < 10){
+                    if(day.charAt(0) != 0 && day < 10){
                         date += "0" + day;
                     } else{
                         date += day;
@@ -123,5 +123,8 @@
         <br>
         <br>
         <button id="createReservation">수령 예약 생성</button>
+        <a href="/main">
+            <button>메인화면</button>
+        </a>
     </body>
 </html>

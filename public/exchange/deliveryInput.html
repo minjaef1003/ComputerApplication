@@ -30,12 +30,12 @@
                     var date = "";
                     
                     date += year;
-                    if(month < 10){
+                    if(month.charAt(0) != 0 && month < 10){
                         date += "0" + month;
                     } else{
                         date += month;
                     }
-                    if(day < 10){
+                    if(day.charAt(0) != 0 && day < 10){
                         date += "0" + day;
                     } else{
                         date += day;
@@ -43,12 +43,12 @@
                     
                     var isFuture = compareDateFuture(year, month, day);
                     
-                    var address = $("#address").val();
+                    var address = "";
+                        address += $("#do").val() + "-" + $("#city").val() + "-" + $("#dong").val() + "-" + $("#detail").val();
                     var name = $("#name").val();
                     var phoneNumber = "";
                         phoneNumber += $("#phoneNumber1").val() + "-" + $("#phoneNumber2").val() + "-" + $("#phoneNumber3").val();
-                    var account = "";
-                        phoneNumber += $("#do").val() + " " + $("#city").val() + " " + $("#dong").val() + " " + $("#detail").val();
+                    var account = $("#account").val();
                     
                     if(isFuture) {
                         $.ajax({
@@ -94,7 +94,11 @@
         <table>
             <tr>
                 <td><p>배송희망일: </p></td>
-                <td><input id="date"/></td>
+                <table>
+                <td>년: <input id="year" style="width:50px"/></td>
+                <td>월: <input id="month" style="width:50px"/></td>
+                <td>일: <input id="day" style="width:50px"/></td>
+                </table>
             </tr>
             <tr>
                 <td><p>배송주소: </p></td>
@@ -125,5 +129,8 @@
             </tr>
         </table>
         <button id="createReservation">수령 예약 생성</button>
+        <a href="/main">
+            <button>메인화면</button>
+        </a>
     </body>
 </html>
