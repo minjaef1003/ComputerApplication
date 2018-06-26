@@ -5,6 +5,18 @@
 		<title>영업점에서 수령 입력</title>
         <script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>
         <script>
+            function compareDateFuture(year, month, day) {
+                var date = new Date();
+                var nowYear = date.getFullYear();
+                var nowMonth = date.getMonth() + 1;
+                var nowDay = date.getDate();
+                
+                if((year > nowYear) || (year == nowYear && month > nowMonth) || (year == nowYear && month == nowMonth && day > nowDay)) {
+                     return true;
+                }
+                return false;
+            }
+            
             $(document).ready(function() {
                 var data = location.href.split('?');
                 var currency = data[1].split(':')[0];
@@ -23,42 +35,64 @@
                 });
                 
                 $("#createReservation").click(function() {
+                    var year = $("#year").val();
+                    var month = $("#month").val();
+                    var day = $("#day").val();
+                    var date = "";
+                    
+                    date += year;
+                    if(month < 10){
+                        date += "0" + month;
+                    } else{
+                        date += month;
+                    }
+                    if(day < 10){
+                        date += "0" + day;
+                    } else{
+                        date += day;
+                    }
+                    
+                    var isFuture = compareDateFuture(year, month, day);
+                    
                     var store = $("#storeList").val();
-                    var date = $("#date").val();
                     var name = $("#name").val();
                     var account = $("#account").val();
+                    if(isFuture) {
+                        $.ajax({
+                            url:"http://localhost:3000/process/showexchangeratelatest",
+                            type:"POST",
+                            dataType:"JSON",
+                            data: {currency: currency},
+                            success: function(response){
+                                var exchangeRate = response[0]["exchangeRate"];
+                                var resultMoney = money * exchangeRate;
+                                console.log(resultMoney);
+                                $.ajax({
+                                    url:"http://localhost:3000/process/createstorereservation",
+                                    type:"POST",
+                                    dataType:"JSON",
+                                    data: {store:store, date: date, money: money, currency:currency, customer:name, account: account, resultMoney: resultMoney},
+                                    success: function(response){
+                                        console.log(response['msg']);
+                                        if(response['msg'] == 'success') {
+                                           alert("예약 생성 성공");
 
-                    $.ajax({
-                        url:"http://localhost:3000/process/showexchangeratelatest",
-                        type:"POST",
-                        dataType:"JSON",
-                        data: {currency: currency},
-                        success: function(response){
-                            var exchangeRate = response[0]["exchangeRate"];
-                            var resultMoney = money * exchangeRate;
-                            console.log(resultMoney);
-                            $.ajax({
-                                url:"http://localhost:3000/process/createstorereservation",
-                                type:"POST",
-                                dataType:"JSON",
-                                data: {store:store, date: date, money: money, currency:currency, customer:name, account: account, resultMoney: resultMoney},
-                                success: function(response){
-                                    console.log(response['msg']);
-                                    if(response['msg'] == 'success') {
-                                       alert("예약 생성 성공");
+                                           location.href = './storeResult.html' + "?" + store + ":" + date  + ":" + money + ":" + currency + ":" + name + ":" + account + ":" + resultMoney;
+                                        } else if(response['msg'] == 'account fail') {
+                                            alert("계좌 미일치");
+                                        } else if(response['msg'] == 'account nothing') {
+                                            alert("계좌가 존재하지 않습니다.");
+                                        } else if(response['msg'] == 'low balance') {
+                                            alert("잔액이 부족합니다");
+                                        }
+                                    },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+                                });
 
-                                       location.href = './storeResult.html' + "?" + store + ":" + date  + ":" + money + ":" + currency + ":" + name + ":" + account + ":" + resultMoney;
-                                    } else if(response['msg'] == 'account fail') {
-                                             alert("계좌 미일치");
-                                    } else if(response['msg'] == 'account nothing') {
-                                             alert("계좌가 존재하지 않습니다.");
-                                    }
-                                },error:function(request,status,error){ alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
-                            });
-
-                        },error:function(request,status,error){    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
-                    });
-                    
+                            },error:function(request,status,error){    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error); }
+                        });
+                    } else {
+                        alert("수령 예약 생성은 미래의 일자만 가능합니다.");
+                    }
                 });
             });
         </script>
@@ -67,8 +101,11 @@
         <table>
             <tr>
                 <td><p>수령희망일: </p></td>
-                <td><input id="date"/></td>
-                
+                <table>
+                <td>년: <input id="year" style="width:50px"/></td>
+                <td>월: <input id="month" style="width:50px"/></td>
+                <td>일: <input id="day" style="width:50px"/></td>
+                </table>
             </tr>
             <tr>
                 <td><p>사용자: </p></td>
